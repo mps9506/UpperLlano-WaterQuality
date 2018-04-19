@@ -593,6 +593,11 @@ ggplot(pdat) +
   theme(legend.title = element_blank(), legend.position = "bottom")
 ggsave("~/Data-Analysis-Projects/UpperLlano-WaterQuality/Figures/DOGAMM.png", width = 6, height = 4, units = "in")
 
+pdat %>%
+  group_by(station) %>%
+  summarise(min = min(fit), max = max(fit)) %>%
+  mutate(pchange = (max-min/max), abschng = max-min)
+
 ## now plot changes in DO concentration as function of temp, month and year
 
 min.temp <- min(do.model1.nl1$gam$model$Temperature)
