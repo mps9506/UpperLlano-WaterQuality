@@ -403,8 +403,8 @@ library(GGally)
 my_custom_cor <- function(data, mapping, color = I("grey50"), sizeRange = c(2, 4), ...) {
   
   # get the x and y data to use the other code
-  x <- eval(mapping$x, data)
-  y <- eval(mapping$y, data)
+  x <- rlang::eval_tidy(mapping$x, data)
+  y <- rlang::eval_tidy(mapping$y, data)
   
   ct <- cor.test(x,y, method = "kendall")
   sig <- symnum(

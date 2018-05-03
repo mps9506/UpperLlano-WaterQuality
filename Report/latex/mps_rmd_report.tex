@@ -6,24 +6,14 @@
 \usepackage{amssymb,amsmath}
 \usepackage{mathspec,xltxtra,xunicode}
 \usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{pagecolor}
 \usepackage{array}
 \usepackage{makecell}
 %\usepackage{unicode-math}
 \defaultfontfeatures{Scale=MatchLowercase}
 
-%\ifxetex
-%  \usepackage{letltxmacro}
-%  \setlength{\XeTeXLinkMargin}{1pt}
-%  \LetLtxMacro\SavedIncludeGraphics\includegraphics
-%  \def\includegraphics#1#{% #1 catches optional stuff (star/opt. arg.)
-%    \IncludeGraphicsAux{#1}%
-%  }%
-%  \newcommand*{\IncludeGraphicsAux}[2]{%
-%    \XeTeXLinkBox{%
-%      \SavedIncludeGraphics#1{#2}%
-%    }%
-%  }%
-%\fi
+
 
 %\setmainfont[Mapping=tex-text,Numbers=OldStyle]{Palatino LT Std}
 \setmainfont[Ligatures=TeX,Numbers=OldStyle]{Adobe Garamond Pro}
@@ -34,10 +24,6 @@
 %\setmathfont[range={\mathbfit->\mathit}]{MinionMath-Bold.otf}
 %\setmathfont[range={\mathit->\mathit}]{MinionMath-Bold.otf}
 
-%%%%%%%%%% Remove the above before submission %%%%%%%%%%%%%%%%%%
-
-%% The amsthm package provides extended theorem environments
-%% \usepackage{amsthm}
 
 %% The lineno packages adds line numbers. Start line numbering with
 %% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
@@ -51,9 +37,12 @@
 %\usepackage{url}
 %\usepackage{madsen-macros}
 
+\definecolor{titlepagecolor}{cmyk}{1,.60,0,.40}
+\definecolor{namecolor}{cmyk}{1,.50,0,.10} 
+
 \usepackage{abstract}
-\renewcommand{\abstractname}{}    % clear the title
-\renewcommand{\absnamepos}{empty} % originally center
+%\renewcommand{\abstractname}{}    % clear the title
+%\renewcommand{\absnamepos}{empty} % originally center
 
 \renewenvironment{abstract}
  {{%
@@ -191,25 +180,51 @@ $for(header-includes)$
 $header-includes$
 $endfor$
 
-$if(endnotes)$
-\usepackage{endnotes}
-\renewcommand{\enotesize}{\normalsize}
-\let\footnote=\endnote
-$endif$
 
 % add tightlist ----------
 \providecommand{\tightlist}{%
 \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
+% ------------------------
 \begin{document}
-	
-% \pagenumbering{arabic}% resets `page` counter to 1 
-%$if(appendix)$
-%\renewcommand*{\thepage}{$appendixletter$--\arabic{page}}
-%$endif$    
+%-------------------------
+
+% title page -------------
+\begin{titlepage}
+\newgeometry{left=7.5cm} %defines the geometry for the titlepage
+\newpagecolor{titlepagecolor}
+\noindent
+%\includegraphics[width=2cm]{logo.jpg}\\[-1em]
+\color{white}
+{\Large{$title$}}
+\par
+\makebox[0pt][l]{\rule{1.3\textwidth}{1pt}}
+\par
+\noindent
+\textbf{\textsf{Texas Water Resources Institute}} \textcolor{namecolor}{\textsf{College Station, Texas}}
+\vfill
+\noindent
+%{\huge \textsf{Handbuch 1.3}}
+\vskip\baselineskip
+\noindent
+
+$if(tr-number)$
+{\textsf{$date$ | $tr-number$}}
+$else$
+{\textsf{$date$}}
+$endif$
+\end{titlepage}
+\restoregeometry % restores the geometry
+\pagecolor{white}
+
+
+% end title page --------------
+\newpage\null\thispagestyle{empty}\newpage
+
+% front matter ------------------
+\pagenumbering{roman}
 
 $if(title)$
-% \maketitle
 
 {% \usefont{T1}{pnc}{m}{n}
 \setlength{\parindent}{0pt}
@@ -226,51 +241,79 @@ $if(anonymous)$\hfill $else$$for(author)$\textbf{$author.name$} \hskip 15pt \emp
 }
 
 }
+\vfill
+\vskip\baselineskip
 
-
-$endif$
-
-
-
-$if(abstract)$
-
-
-
-\begin{abstract}
-
-    \hbox{\vrule height .2pt width 39.14pc}
-
-    \vskip 8.5pt % \small 
-
-\noindent $abstract$
-
-$if(keywords)$
-
-\vskip 8.5pt \noindent \emph{Keywords}: $keywords$ \par
-
-    \hbox{\vrule height .2pt width 39.14pc}
-
-
+\noindent\normalsize\textbf{Texas Water Resources Institute}\par
+\noindent\normalsize{Texas A\&M AgriLife Research and Extension Service}\par
+\noindent\normalsize{Texas A\&M University}\par
+\noindent\normalsize{College Station, Texas}\par
+$if(tr-number)$
+{\noindent\normalsize{$date$}\par
+\noindent\normalsize{$tr-number$}}
 $else$
-
-    \hbox{\vrule height .2pt width 39.14pc}
-
+{\noindent\normalsize{$date$}}
 $endif$
 
-\end{abstract}
+
 
 $endif$
+% end front matter --------------
 
-\vskip 6.5pt
 
+
+% toc ------------------------
 $if(toc)$
 {
+\newpage
 \hypersetup{linkcolor=black}
 \setcounter{tocdepth}{$toc-depth$}
 \tableofcontents
 }
 $endif$
 
+$if(lof)$
+{
+\newpage
+\hypersetup{linkcolor=black}
+\listoffigures
+}
+$endif$
+
+$if(lot)$
+{
+\newpage
+\hypersetup{linkcolor=black}
+\listoftables
+}
+$endif$
+%----------------------------
+
+\newpage
+\pagenumbering{arabic}% resets `page` counter to 1 
+$if(appendix)$
+\renewcommand*{\thepage}{$appendixletter$--\arabic{page}}
+$endif$    
+
+% abstract ---------------
+$if(abstract)$
+\section*{Abstract}
+\begin{abstract}
+    \hbox{\vrule height .2pt width 39.14pc}
+    \vskip 8.5pt % \small 
+\noindent $abstract$
+$if(keywords)$
+\vskip 8.5pt \noindent \emph{Keywords}: $keywords$ \par
+    \hbox{\vrule height .2pt width 39.14pc}
+$else$
+    \hbox{\vrule height .2pt width 39.14pc}
+$endif$
+\end{abstract}
+$endif$
+\vskip 6.5pt
+% end abstract ----------
+ 
+% begin body ------------
 \noindent $if(anonymous)$\doublespacing$else$$if(spacing)$\$spacing$spacing$endif$$endif$ $body$
 $if(endnotes)$
 \newpage
@@ -296,4 +339,5 @@ $endif$
 $for(include-after)$
 $include-after$
 $endfor$
+
 \end{document}

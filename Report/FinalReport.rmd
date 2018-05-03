@@ -5,10 +5,10 @@ output:
     #keep_tex: true #uncomment to save tex files
     fig_caption: true
     latex_engine: xelatex
-    dev: "cairo_pdf"
-    template: latex/mps_rmd_template.tex
+    #dev: "cairo_pdf"
+    template: latex/mps_rmd_report.tex
 title: "*Escherichia coli* and Dissolved Oxygen Trends in the Upper Llano River Watershed, Texas"
-thanks: "A technical report prepared in cooperation with the Texas State Soil and Water Conservation Board under funding from a US EPA 319(h) nonpoint source protection grant"
+thanks: "A technical report prepared in cooperation with the Texas State Soil and Water Conservation Board under funding from a United States Environmental Protection Agency grant."
 author:
 - name: Michael Schramm
   affiliation: Texas A\&M University AgriLife Research and Extension Service, Texas Water Resources Institute
@@ -17,15 +17,21 @@ author:
 - name: Tom Arsuffi
   affiliation: Texas Tech University, Llano River Field Station
 abstract: "This document provides an introduction to R Markdown, argues for its benefits, and presents a sample manuscript template intended for an academic audience. I include basic syntax to R Markdown and a minimal working example of how the analysis itself can be conducted within R with the `knitr` package."
-keywords: "Llano River, E. coli, Dissolved Oxygen, Water Quality"
+keywords: "Llano River, *E. coli*, Dissolved Oxygen, Water Quality"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 geometry: margin=1in
 # spacing: double
 lof: yes
-bibliography: samplebib.bib
+lot: yes
+bibliography: bibliography.bib
 biblio-style: apalike
 
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,  dev = "cairo_pdf")
+```
+
 ```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 library(dataRetrieval)
 library(ggplot2)
@@ -38,7 +44,27 @@ library(nlme)
 library(rloadest)
 library(hrbrthemes)
 library(kableExtra)
-update_geom_font_defaults(font_rc)
+library(here)
+library(Cairo)
+library(extrafont)
+library(knitr)
+
+extrafont::loadfonts()
+
+
+inline_hook <- function(x) {
+  if (is.numeric(x)) {
+    # ifelse does a vectorized comparison
+    # If integer, print without decimal; otherwise print two places
+    res <- ifelse(x == round(x),
+      sprintf("%d", x),
+      sprintf("%.2f", x)
+    )
+    paste(res, collapse = ", ")
+  }
+}
+knit_hooks$set(inline = inline_hook)
+
 ```
 
 
@@ -59,8 +85,8 @@ knitr::include_graphics("Images/figure_02.png", dpi = 300)
 # Methods
 
 ## Study Location and Data Sources
-The Upper Llano Watershed includes the catchments of both the North Llano and South Llano River (Figure 1). For purposes of this report, the watershed was extended downstream to capture water quality trends of the combined flows from both watershed. The project watershed was 4,809 km^2 (1,188,330 acres).
-We obtained mean daily streamflow from three gages in the study area from the USGS National Water Information System (NWIS) Figure (\@ref(fig:figure1), Figure \@ref(fig:figure2), and Table \@ref(tab:table1)). The Texas Commission on Environmental Quality (TCEQ) water quality data was obtained through the [Clean Rivers Program data tool](https://www80.tceq.texas.gov/SwqmisWeb/public/crpweb.faces). Although a number of water quality monitoring stations occur within the watershed, stations with less than one year of data were omitted because they could not provide meaningful insight on temporal concentration trends. Records from five water quality stations were included in the analysis (Figure \@ref(fig:figure1), Figure \@ref(fig:figure2), and Table 2). Although NL2 includes a limited number of available sample events, it was included because sampling at the long-term station NL1 was recently discontinued due to site access issues.
+The Upper Llano Watershed includes the catchments of both the North Llano and South Llano River (Figure \@ref(fig:figure1)). For purposes of this report, the watershed was extended downstream to capture water quality trends of the combined flows from both watershed. The project watershed was 4,809 km^2^ (1,188,330 acres).
+We obtained mean daily streamflow from three gages in the study area from the USGS National Water Information System (NWIS) Figure (\@ref(fig:figure1), Figure \@ref(fig:figure2), and Table \@ref(tab:table1)). The Texas Commission on Environmental Quality (TCEQ) water quality data was obtained through the [Clean Rivers Program data tool](https://www80.tceq.texas.gov/SwqmisWeb/public/crpweb.faces). Although a number of water quality monitoring stations occur within the watershed, stations with less than one year of data were omitted because they could not provide meaningful insight on temporal concentration trends. Records from five water quality stations were included in the analysis (Figure \@ref(fig:figure1), Figure \@ref(fig:figure2), and Table \@ref(tab:table2)). Although NL2 includes a limited number of available sample events, it was included because sampling at the long-term station NL1 was recently discontinued due to site access issues.
 Water quality monitoring data used in this report were collected by TCEQ, Lower Colorado River Authority, Texas State University, and other Clean Rivers Program Partners. The collection of these data are conducted under TCEQ and EPA approved Quality Assurance Project Plans.
 
 ```{r table1, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
@@ -81,43 +107,1184 @@ summaryQ <- summaryQ %>%
 summaryQ$DrainageArea = c(2332, 2277, 4809)
 summaryQ$Name = c("North Llano River near Junction, TX", "South Llano River at Flat Rock Ln at Junction, TX", "Llano River Near Junction TX")
 summaryQ$POR = c("2001-2016", "2012-2016", "2001-2016")
+
+
+
 knitr::kable(summaryQ, "latex", digits = 2, booktabs = T, escape = F,
              caption = "USGS gage summary information",
-             col.names = linebreak(c("USGS Site No.", "$Q_{min}$", "$Q_{max}$", 
-                           "$\\bar{Q}$", "$\\tilde{Q}$", "Drainage\nArea\n($km^2$)", 
-                           "Name", "Period of\nRecord"))) %>%
+             col.names = linebreak(c("USGS Site No.", 
+                                     paste0("$Q_{min}$", footnote_marker_symbol(1, "latex")),
+                                     paste0("$Q_{max}$", footnote_marker_symbol(2, "latex")),
+                                     paste0("$\\bar{Q}$", footnote_marker_symbol(3, "latex")),
+                                     paste0("$\\tilde{Q}$", footnote_marker_symbol(4, "latex")),
+                                     "Drainage\nArea\n($km^2$)", 
+                                     "Name", 
+                                     "Period of\nRecord"))) %>%
   #kable_styling(full_width = F) %>%
-  column_spec(7, width = "10em")
+  column_spec(7, width = "10em") %>%
+  footnote(symbol = c("Minimum flow", "Maximum flow", "Mean Flow", "Median Flow"))
 ```
 
 
+```{r importwqdata, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+
+# table2 <- data_frame(station = c("17471", "21489", "17425", "21548", "18197"),
+#                      name = c("LR1", "LR2", "NL1", "NL2", "SL1"),
+#                      area = c(4809, 4789, 2372, 2342, 1941),
+#                      n = c(16,41,35,8,13),
+#                      dates = c("2011-2015", ""))
+
+## Retrieve water quality info from storet
+LR1 <- readWQPqw(siteNumbers = c("TCEQMAIN-17471"), parameterCd = "Escherichia coli")
+LR2 <- readWQPqw(siteNumbers = c("TCEQMAIN-21489"), parameterCd = "Escherichia coli")
+NL1 <- readWQPqw(siteNumbers = c("TCEQMAIN-17425"), parameterCd = "Escherichia coli")
+NL2 <- readWQPqw(siteNumbers = c("TCEQMAIN-21548"), parameterCd = "Escherichia coli")
+SL1 <- readWQPqw(siteNumbers = c("TCEQMAIN-18197"), parameterCd = "Escherichia coli")
+
+## Clean storet data
+LR1 <- LR1[LR1$ResultMeasure.MeasureUnitCode!="hours",]
+LR2 <- LR2[LR2$ResultMeasure.MeasureUnitCode!="hours",]
+NL1 <- NL1[NL1$ResultMeasure.MeasureUnitCode!="hours",]
+NL2 <- NL2[NL2$ResultMeasure.MeasureUnitCode!="hours",]
+SL1 <- SL1[SL1$ResultMeasure.MeasureUnitCode!="hours",]
+
+LR1 <- select(LR1, Date = ActivityStartDate, Location = MonitoringLocationIdentifier, Value = ResultMeasureValue)
+LR2 <- select(LR2, Date = ActivityStartDate, Location = MonitoringLocationIdentifier, Value = ResultMeasureValue)
+NL1 <- select(NL1, Date = ActivityStartDate, Location = MonitoringLocationIdentifier, Value = ResultMeasureValue)
+NL2 <- select(NL2, Date = ActivityStartDate, Location = MonitoringLocationIdentifier, Value = ResultMeasureValue)
+SL1 <- select(SL1, Date = ActivityStartDate, Location = MonitoringLocationIdentifier, Value = ResultMeasureValue)
+
+cframe <- bind_rows(LR1, LR2, NL1, NL2, SL1)
+
+```
+
+```{r table2, echo = FALSE, message=FALSE, warning=FALSE}
+tab2 <- cframe %>%
+  mutate(Refname = case_when(
+    Location == "TCEQMAIN-17471" ~ "LR1",
+    Location == "TCEQMAIN-21489" ~ "LR2",
+    Location == "TCEQMAIN-17425" ~ "NL1",
+    Location == "TCEQMAIN-21548" ~ "NL2",
+    Location == "TCEQMAIN-18197" ~ "SL1"),
+    Station = case_when(
+      Location == "TCEQMAIN-17471" ~ "17471",
+      Location == "TCEQMAIN-21489" ~ "21489",
+      Location == "TCEQMAIN-17425" ~ "17425",
+      Location == "TCEQMAIN-21548" ~ "21548",
+      Location == "TCEQMAIN-18197" ~ "18197")) %>%
+  group_by(Station, Refname) %>%
+  summarise(n = n(), mindate = min(Date), maxdate = max(Date)) %>%
+  mutate(Sampledates = paste(mindate, ":\n", maxdate))
+
+tab2 <- tab2 %>%
+  select(Station, Refname, n, Sampledates) %>%
+  arrange(Refname)
+
+tab2$drain <- c(4809, 4789, 2372, 2342, 1941)
+tab2$ratio <- c(NA, 0.996, 1.017, 1.004, 0.852)
+
+knitr::kable(tab2, "latex", booktabs = T, escape = F,
+             caption = "TCEQ water quality monitoring station summary",
+             col.names = linebreak(c("TCEQ Station\nNumber", "Reference\nName", 
+                                     "Number of\nSamples", "Date\nRange",
+                                     "Drainage\nArea", "$\\frac{A_{y}}{A_x}$")))
+```
+
 ## Streamflow Estimation
 
-Mean daily streamflows for ungaged water quality monitoring sites (LR2, NL1, NL2, SL1) were developed using the Drainage-Area Ratio (DAR) method. DAR provides a simple method of estimating streamflows at ungaged sites, in particular for nested subswatersheds (Hirsch (1979), Ries and Friez (2000), and Emerson, Vecchia, and Dahi (2005). DAR calculates streamflow discharge as:
+Mean daily streamflows for ungaged water quality monitoring sites (LR2, NL1, NL2, SL1) were developed using the Drainage-Area Ratio (DAR) method. DAR provides a simple method of estimating streamflows at ungaged sites, in particular for nested subswatersheds [@Hirsch1979; @Ries2000; @Emerson2005]. DAR calculates streamflow discharge as:
 $$
 Y_i = X_i(\frac{A_y}{A_x})^\phi
 $$
-where $Y_i$ is the calculated discharge at the ungaged site at time $i$, $X_i$ is discharge measured at the gaged site at time $i$,  while $(\frac{A_y}{A_x})$ is the ratio of ungaged and gaged catchment areas. Values used for $(\frac{A_y}{A_x})$ are indicated in Table 2.
+where $Y_i$ is the calculated discharge at the ungaged site at time $i$, $X_i$ is discharge measured at the gaged site at time $i$,  while $(\frac{A_y}{A_x})$ is the ratio of ungaged and gaged catchment areas. Values used for $(\frac{A_y}{A_x})$ are indicated in Table \@ref(tab:table2).
 
-In most applications, $\phi$ is assumed to equal one (Asquith, Roussel, and Vrabel 2006). However, when applied to Texas streams, $\phi$ = 1 results in substantial over- or under-estimation at the largest magnitude streamflows (Asquith, Roussel, and Vrabel 2006). Therefore, we applied values for $\phi$ based on streamflow percentile values as indicated by Asquith, Roussel, and Vrabel (2006) (Table 3). To facilitate interpretation of hydrological conditions as each station, flow duration curves were plotted and converted to load duration curves overlaid with water quality measurements (Morrison and Bonta 2008). The load duration curves were developed using Texas’s primary contact recreation criterion for E. coli bacteria in surface freshwater bodies of 126 cfu/100 mL. The duration curves provide a visual analysis of flow conditions at stations, as well as an understanding of what flow conditions water quality concentrations and loads exceed established water quality standards.
+In most applications, $\phi$ is assumed to equal one [@Asquith2006]. However, when applied to Texas streams, $\phi$ = 1 results in substantial over- or under-estimation at the largest magnitude streamflows [@Asquith2006]. Therefore, we applied values for $\phi$ based on streamflow percentile values as indicated by @Asquith2006 (Table \@ref(tab:table3)). To facilitate interpretation of hydrological conditions as each station, flow duration curves were plotted and converted to load duration curves overlaid with water quality measurements [@UnitedStatesEnvironmentalProtectionAgency2008]. The load duration curves were developed using Texas’s primary contact recreation criterion for *E. coli* bacteria in surface freshwater bodies of 126 cfu/100 mL. The duration curves provide a visual analysis of flow conditions at stations, as well as an understanding of what flow conditions water quality concentrations and loads exceed established water quality standards.
+
+```{r table3, echo = FALSE, message=FALSE, warning=FALSE}
+
+# assign values of phi based on streamflow perentile
+
+phi <- function(data, ...){
+  d <- data %>%
+    mutate(phi = case_when(
+      cumdist >= 0 & cumdist < 0.06 ~ 0.885,
+      cumdist >= 0.06 & cumdist < 0.10 ~ 0.886,
+      cumdist >= 0.10 & cumdist < 0.18 ~ 0.887,
+      cumdist >= 0.18 & cumdist < 0.24 ~ 0.888,
+      cumdist >= 0.24 & cumdist < 0.30 ~ 0.889,
+      cumdist >= 0.30 & cumdist < 0.34 ~ 0.890,
+      cumdist >= 0.34 & cumdist < 0.36 ~ 0.891,
+      cumdist >= 0.36 & cumdist < 0.38 ~ 0.892,
+      cumdist >= 0.38 & cumdist < 0.40 ~ 0.893,
+      cumdist >= 0.40 & cumdist < 0.42 ~ 0.894,
+      cumdist >= 0.42 & cumdist < 0.44 ~ 0.895,
+      cumdist >= 0.44 & cumdist < 0.46 ~ 0.897,
+      cumdist >= 0.46 & cumdist < 0.48 ~ 0.899,
+      cumdist >= 0.48 & cumdist < 0.50 ~ 0.902,
+      cumdist >= 0.50 & cumdist < 0.52 ~ 0.905,
+      cumdist >= 0.52 & cumdist < 0.54 ~ 0.908,
+      cumdist >= 0.54 & cumdist < 0.56 ~ 0.912,
+      cumdist >= 0.56 & cumdist < 0.58 ~ 0.916,
+      cumdist >= 0.58 & cumdist < 0.60 ~ 0.920,
+      cumdist >= 0.60 & cumdist < 0.62 ~ 0.924,
+      cumdist >= 0.62 & cumdist < 0.64 ~ 0.927,
+      cumdist >= 0.64 & cumdist < 0.66 ~ 0.930,
+      cumdist >= 0.66 & cumdist < 0.68 ~ 0.932,
+      cumdist >= 0.68 & cumdist < 0.70 ~ 0.934,
+      cumdist >= 0.70 & cumdist < 0.76 ~ 0.935,
+      cumdist >= 0.76 & cumdist < 0.80 ~ 0.934,
+      cumdist >= 0.80 & cumdist < 0.84 ~ 0.933,
+      cumdist >= 0.84 & cumdist < 0.86 ~ 0.931,
+      cumdist >= 0.86 & cumdist < 0.88 ~ 0.927,
+      cumdist >= 0.88 & cumdist < 0.90 ~ 0.920,
+      cumdist >= 0.90 & cumdist < 0.92 ~ 0.906,
+      cumdist >= 0.92 & cumdist < 0.94 ~ 0.890,
+      cumdist >= 0.94 & cumdist < 0.95 ~ 0.865,
+      cumdist >= 0.95 & cumdist < 0.96 ~ 0.850,
+      cumdist >= 0.96 & cumdist < 0.97 ~ 0.830,
+      cumdist >= 0.97 & cumdist < 0.98 ~ 0.806,
+      cumdist >= 0.98 & cumdist < 0.99 ~ 0.773,
+      cumdist >= 0.99 & cumdist < 1.00 ~ 0.737,
+      cumdist == 1.00 ~ 0.700
+    ))
+  d
+}
+
+tab3 <- data_frame(cumdist = c(seq(from = 0, to = .94, by = .02),seq(.95, 1, by = .01)))
+tab3 <- phi(tab3)
+tab3 <- mutate(tab3, cumdist = as.integer(cumdist * 100))
+
+tab3_1 <- tab3[1:19,]
+tab3_2 <- tab3[20:38,]
+tab3_3 <- tab3[39:54,]
+knitr::kable(list(tab3_1, tab3_2, tab3_3),
+             "latex", booktabs = T, escape = F,
+             caption = "Reccomended $\\phi$ values for DAR method applied in Texas streams (\\@Asquith2006)",
+             col.names = linebreak(c("Streamflow\npercentile", "$\\phi$")))
+
+```
+
 
 ## Correlation Analysis
 
-Monotonic relationships between dissolved oxygen concentrations, log transformed streamflow, and stream temperature were evaluated graphically and with Kendall’s Tau (Helsel and Hirsch 2002). Censored values and outliers were not filtered due to the resistance of rank-methods such as Kendall’s Tau to these values. Correlations were considered significant at the $p$ < 0.05 level. All statistical analysis and plots were completed in `R`, versions 3.4.0 (R Core Team 2016).
+Monotonic relationships between dissolved oxygen concentrations, log transformed streamflow, and stream temperature were evaluated graphically and with Kendall’s Tau [@Helsel2002]. Censored values and outliers were not filtered due to the resistance of rank-methods such as Kendall’s Tau to these values. Correlations were considered significant at the $p$ < 0.05 level. All statistical analysis and plots were completed in `R`, versions 3.4.0 [@RCoreTeam2016].
 
 ## Concentration and Load Trends
 
-We evaluated trends in bacteria concentrations collected at each station with simple linear regressions of log transformed concentrations against date (Helsel and Hirsch 2002). Dissolved oxygen concentrations were evaluated using untransformed values regressed against date. The null hypothesis of zero slope over time was rejected at p < 0.05. Scatter plots of concentrations and dates are provided to aid result interpretation. We verified linear regression assumptions of normality with qqplots and by plotting model residuals against dates.
-LR2 and NL1 were the only stations with enough data to estimate concentrations and loads using regression based techniques. We estimated instream mean daily bacteria loads using the Weighted Regressions on Time, Discharge and Season (WRTDS) approach with the EGRET package in R (R.M. Hirsch, Moyer, and Archfield 2010; R.M. Hirsch and De Cicco 2014). We used WRTDS outputs to describe trends in concentration and loads over time. WRTDS is a regression-based approach that models log transformed water quality constituents concentrations as a function of time, flow, and season. The functional model is:
+We evaluated trends in bacteria concentrations collected at each station with simple linear regressions of log transformed concentrations against date [@Helsel2002]. Dissolved oxygen concentrations were evaluated using untransformed values regressed against date. The null hypothesis of zero slope over time was rejected at $p$ < 0.05. Scatter plots of concentrations and dates are provided to aid result interpretation. We verified linear regression assumptions of normality with qqplots and by plotting model residuals against dates.
+LR2 and NL1 were the only stations with enough data to estimate concentrations and loads using regression based techniques. We estimated instream mean daily bacteria loads using the Weighted Regressions on Time, Discharge and Season (WRTDS) approach with the `EGRET` package in `R` [@Hirsch2010; @Hirsch2015]. We used WRTDS outputs to describe trends in concentration and loads over time. WRTDS is a regression-based approach that models log transformed water quality constituents concentrations as a function of time, flow, and season. The functional model is:
 $$
 ln(E.coli) = \beta_0+\beta_1T+\beta_2ln(Q)+\beta_3cos(2\pi t)
 $$
 
-Where $T$ is decimal time and included in the model as an annual term $(\beta_1)$ or seasonal term ($\beta_3$, $\beta_4$), and $Q$ is flow. WRTDS differs from other regression based estimators, such as LOADEST, by using a weighted regression to estimate coefficients for each combination of Q and t. The coefficeints are used to estimate daily concentrations, daily loads, and flow-normalized loads and concentrations. Flow-normalized values are derived from removal of variation in concentration based on random variations in discharge. Further details of WRTDS are outlined in (R.M. Hirsch, Moyer, and Archfield 2010). These flow normalized values are useful to understand how changes in land practices over time affect instream constituent concentrations and loads. In particular flow normalized values are less influenced by increases in loads solely attributed to increases in stormflow runoff. Flow-normalized values provide a useful information that are not captured by regression on concentration values alone, which can be influenced by changes in precipitation and runoff and might not reflect progress in land management activities.
+Where $T$ is decimal time and included in the model as an annual term $(\beta_1)$ or seasonal term ($\beta_3$, $\beta_4$), and $Q$ is flow. WRTDS differs from other regression based estimators, such as LOADEST, by using a weighted regression to estimate coefficients for each combination of Q and t. The coefficeints are used to estimate daily concentrations, daily loads, and flow-normalized loads and concentrations. Flow-normalized values are derived from removal of variation in concentration based on random variations in discharge. Further details of WRTDS are outlined in @Hirsch2010. These flow normalized values are useful to understand how changes in land practices over time affect instream constituent concentrations and loads. In particular flow normalized values are less influenced by increases in loads solely attributed to increases in stormflow runoff. Flow-normalized values provide a useful insights that are not reflected by regression on concentration values alone, which can be influenced by changes in precipitation and runoff and might not reflect progress in land management activities.
 
-We estimated instream dissolved oxygen concentrations at LR and NL1 using generalized additive mixed models (GAMMs) (Wood 2008). GAMMs are regression models that use non-linear smooth functions on covariates. Dissolved oxygen concentrations were not expected to be a function of flow, but a function of stream temperature, season, long-term trend, and instream metabolic processes. Therefore, we utilized GAMMs to describe dissolved oxygen concentration because it allows the inclusion of specified terms and random effects. The generalized GAMM model used to fit dissolved oxygen concentrations is:
+We estimated instream dissolved oxygen concentrations at LR and NL1 using generalized additive mixed models (GAMMs) [@Wood2008]. GAMMs are regression models that use non-linear smooth functions on covariates. Dissolved oxygen concentrations were not expected to be a function of flow, but a function of stream temperature, season, long-term trend, and instream metabolic processes. Therefore, we utilized GAMMs to describe dissolved oxygen concentration because it allows the inclusion of specified terms and random effects. The generalized GAMM model used to fit dissolved oxygen concentrations is:
 $$
 DO = \beta_0+\beta_1ln(Q)+\beta_2Year+\beta_3Month+\beta_4Temperature
 $$
 
-Where $Q$ is flow, $Year$ is year term, $Month$ is the seasonal month term, and $Temperature$ is the water temperature term. Appropriateness of GAMM model fits were evaluated by inspecting model residuals following procedures described by Zuur et al (2009).
+Where $Q$ is flow, $Year$ is year term, $Month$ is the seasonal month term, and $Temperature$ is the water temperature term. Appropriateness of GAMM model fits were evaluated by inspecting model residuals following procedures described by @Zuur2009. GAMMS were developed using the `mgcv` and `nlme` pacakages in `R`.
+
+# Results
+
+## Flow Duration Curves
+
+```{r figure3, echo = FALSE, message=FALSE, warning=FALSE, fig.cap="Flow duration curves of estimated mean daily flows at each station. Duration interval indicates the percent of days the mean daily flows is exceeded."}
+# DARs used:
+# lr = Q[usgslr]
+# lr2 = Q[usgslr] * (4,789/4,809)^phi
+# nr1 = Q[usgsnl] * (2,372/2,332)^phi
+# nr2 = Q[usgsnl] * (2,342/2,332)^phi
+# sr1 = Q[usgssl] * (1,941/2,277)^phi
+
+# Calculate flow exceedance and phi at each gage
+USGSLR <- USGSLR %>%
+  arrange(Flow) %>%
+  mutate(cumdist = cume_dist(-Flow))
+USGSLR <- phi(USGSLR)
+
+USGSNL <- USGSNL %>%
+  arrange(Flow) %>%
+  mutate(cumdist = cume_dist(-Flow))
+USGSNL <- phi(USGSNL)
+
+USGSSL <- USGSSL %>%
+  arrange(Flow) %>%
+  mutate(cumdist = cume_dist(-Flow))
+USGSSL <- phi(USGSSL)
+
+# create plot and report of USGS streamflow data
+fframe <- bind_rows(USGSLR, USGSNL, USGSSL)
+
+
+# add columns to calculate flows at each station using DAR^phi then gather into tidy format
+
+fframe <- fframe %>%
+  mutate(
+    LR1 = case_when(
+      site_no == "08150000" ~ Flow),
+    LR2 = case_when(
+      site_no == "08150000" ~ Flow * (4789/4809)^phi),
+    NL1 = case_when(
+      site_no == "08148500" ~ Flow * (2372/2332)^phi),
+    NL2 = case_when(
+      site_no == "08148500" ~ Flow * (2342/2332)^phi),
+    SL1 = case_when(
+      site_no == "08149900" ~ Flow * (1941/2277)^phi )) %>%
+  gather(key = station, value = estflow, LR1, LR2, NL1, NL2, SL1 ) %>%
+  filter(!is.na(estflow))
+
+#plot FDCs for each station
+
+ggplot(filter(fframe, estflow != 0)) + 
+  geom_line(aes(cumdist,estflow)) +
+  scale_y_log10(labels = scales::comma) + scale_x_continuous(labels = scales::percent) + facet_wrap(~station) +
+  ylab("Q (cfs)") + xlab("Duration Interval") +
+  background_grid() +
+  theme_ipsum_rc() +
+  theme(axis.text.x = element_text(size = 9))
+```
+
+The flow duration curves (Figure \@ref(fig:figure3)) indicate the Llano River at stations LR1 and LR2 maintained consistent flows through the period of record (2001-2015). Compared to LR1 and LR2, the flow duration curves of the North Llano at stations NL1 and NL2 depict a flashier stream with periods of no flow. Flows at SL1 indicate a more consistent flow, likely contributing to consistent flows seen downstream at LR1 and LR2. Streamflow records for SL1 are limited because the USGS gage on the South Llano began data collection in 2012.
+
+## *E. coli*
+
+### *E. coli* Load Duration Curves
+
+```{r figure4, echo = FALSE, message=FALSE, warning=FALSE, fig.cap="Bacteria load duration curves. The black line indicates allowable bacteria loads based on the 126 colonies per 100 mL water quality criterion. The points indicate measured bacteria concentrations converted to loads based on estimated mean daily flows."}
+cframe <- cframe %>%
+  mutate(Location = case_when(
+    Location == "TCEQMAIN-17471" ~ "LR1",
+    Location == "TCEQMAIN-21489" ~ "LR2",
+    Location == "TCEQMAIN-17425" ~ "NL1",
+    Location == "TCEQMAIN-21548" ~ "NL2",
+    Location == "TCEQMAIN-18197" ~ "SL1"
+  ))
+
+cframe$ndate <- dectime(cframe$Date)
+
+fframe <- fframe %>%
+  left_join(cframe, by = c("Date" = "Date", "station" = "Location"))
+
+
+# allowable load = cfs * 126/100 mpn/ml * mL/cubic feet * sec/day = mpn/day  
+fframe$AllowableLoad <- fframe$estflow * 126/100 * 28316.8 * 86400 / 1000000
+fframe$MeasuredLoad <- fframe$estflow * fframe$Value/100 * 28316.8 * 86400 / 1000000
+
+ggplot(filter(fframe, estflow != 0)) + 
+  geom_line(aes(cumdist,AllowableLoad)) +
+  geom_point(aes(cumdist,MeasuredLoad), color = "dodgerblue", alpha = 0.75) +
+  scale_y_log10(labels = scales::scientific) + scale_x_continuous(labels = scales::percent) + facet_wrap(~station) +
+  ylab(expression(paste(italic("E. coli"), " (million cfu/Day)"))) + 
+  xlab("Duration Interval") +
+  background_grid() +
+  theme_ipsum_rc() +
+  theme(axis.text.x = element_text(size = 9))
+```
+
+Load duration curves (Figure \@ref(fig:figure4)) indicate bacteria concentrations and loads remain below the allowable criterion across all flow conditions at each station. Isolated individual load exceedances, where measured values are above the load duration curve line, occur sporadically across the duration interval.
+
+### *E. coli* Concentration Trends
+
+```{r figure5, echo = FALSE, message=FALSE, warning=FALSE, fig.cap="*E. coli* concentrations plotted against time for each station. The solid line is the linear regression through all points, and the shaded area indicates the 95% confidence intervals."}
+
+#fit linear model for each station
+lm.lr1 <- lm(log(Value) ~ ndate, data = cframe[cframe$Location=="LR1",])
+#plot(lm.lr1)
+a <- summary(lm.lr1)
+lm.lr2 <- lm(log(Value) ~ ndate, data = cframe[cframe$Location=="LR2",])
+#plot(lm.lr2)
+#summary(lm.lr2)
+lm.nl1 <- lm(log(Value) ~ ndate, data = cframe[cframe$Location=="NL1",])
+#plot(lm.nl1)
+#summary(lm.nl1)
+lm.nl2 <- lm(log(Value) ~ ndate, data = cframe[cframe$Location=="NL2",])
+#plot(lm.nl2)
+#summary(lm.nl2)
+lm.sl1 <- lm(log(Value) ~ ndate, data = cframe[cframe$Location=="SL1",])
+#plot(lm.sl1)
+#summary(lm.sl1)
+
+a <- data.frame(Location = as.factor(c("LR1", "LR2", "NL1", "NL2", "SL1")), # verbose and not R-like but works
+                pvalue = c(round(coef(summary(lm.lr1))[2,4],3), 
+                           round(coef(summary(lm.lr2))[2,4],3),
+                           round(coef(summary(lm.nl1))[2,4],3),
+                           round(coef(summary(lm.nl2))[2,4],3),
+                           round(coef(summary(lm.sl1))[2,4],3)),
+                tstat = c(coef(summary(lm.lr1))[2,3], 
+                          coef(summary(lm.lr2))[2,3],
+                          coef(summary(lm.nl1))[2,3],
+                          coef(summary(lm.nl2))[2,3],
+                          coef(summary(lm.sl1))[2,3]),
+                Date = as.Date(c("2001-1-1","2010-1-1","2010-1-1","2001-1-1","2001-1-1")),
+                Value = c(500,500,500,500,500))
+
+p <- ggplot() + 
+  geom_point(data = cframe, aes(Date, Value), alpha = 0.75) + 
+  stat_smooth(data = cframe, aes(Date, Value), method = "lm") + 
+  #geom_label(data = a, aes(Date, Value, label = paste("atop(italic(T)==",round(tstat,3),",italic(p)==",pvalue,")")), 
+  #          family = "serif", size = 3, parse = T, hjust = "left",vjust = "bottom", alpha = 0.5) +
+  geom_hline(yintercept = 126, linetype = 2) +
+  facet_wrap(~Location) +
+  scale_y_log10() +
+  background_grid() +
+  ylab(expression(paste(italic("E. coli"), " (cfu/100 mL)"))) +
+  theme_ipsum_rc() + scale_color_ipsum()
+p
+
+```
+
+Linear regression of log transformed bacteria concentrations indicated a significant decrease in E. coli concentration at LR2 ($T$ = -2.08, $p$ <0.05) from 2001 through 2016 (Figure \@ref(fig:figure5)). The null hypothesis of no increasing or decreasing trend was not rejected at LR1, NL1, NL2, or SL1 over the respective available sample periods.
+
+Figure 6 depicts the WRTDS estimated flow-normalized bacteria concentrations and loads at LR2 and NL1. From 2001 through 2016 annual mean flow-normalized *E. coli* concentration decreased 33 cfu/100 mL and flow normalized loads decreased 5.87×10^6^ million colonies per day from 2001 through 2016 at LR2 (Table \@ref(tab:table4), Figure \@ref(fig:figure6)). *E. coli* concentration and load at NL1 decreased by 235 cfu/100mL and 1.27 × 10^5^ million colonies per day from 2002 through 2016. Although substantial, the estimates for both stations exhibit considerable uncertainty with estimated bias statistic of 0.287 for LR2 and 0.138 for NL1. An inspection of model diagnostics indicate samples at both stations are considerably underrepresented at high flow events. Furthermore, temporal gaps (2009-2011) in monitoring data decrease confidence in these estimated concentration and loads.
+
+```{r WRTDS, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+##### WRTDS Models
+library(EGRET)
+library(EGRETci)
+library(fields)
+library(loadflex)
+library(readr)
+
+plotFlowConc <- function(eList, month = c(1:12), years = NULL, col_vec = c('red', 'green', 'blue'), ylabel = NULL, xlabel = NULL, alpha = 1, size = 1,  allflo = FALSE, ncol = NULL, grids = TRUE, scales = NULL, interp = 4, pretty = TRUE, use_bw = TRUE, fac_nms = NULL, ymin = 0){
+  
+  localDaily <- getDaily(eList)
+  localINFO <- getInfo(eList)
+  localsurfaces <- getSurfaces(eList)
+  
+  # plot title
+  toplab <- with(eList$INFO, paste(shortName, paramShortName, sep = ', '))
+  
+  # flow, date info for interpolation surface
+  LogQ <- seq(localINFO$bottomLogQ, by=localINFO$stepLogQ, length.out=localINFO$nVectorLogQ)
+  year <- seq(localINFO$bottomYear, by=localINFO$stepYear, length.out=localINFO$nVectorYear)
+  jday <- 1 + round(365 * (year - floor(year)))
+  surfyear <- floor(year)
+  surfdts <- as.Date(paste(surfyear, jday, sep = '-'), format = '%Y-%j')
+  surfmos <- as.numeric(format(surfdts, '%m'))
+  surfday <- as.numeric(format(surfdts, '%d'))
+  
+  # interpolation surface
+  ConcDay <- localsurfaces[,,3]
+  
+  # convert month vector to those present in data
+  month <- month[month %in% surfmos]
+  if(length(month) == 0) stop('No observable data for the chosen month')
+  
+  # salinity/flow grid values
+  flo_grd <- LogQ
+  
+  # get the grid
+  to_plo <- data.frame(date = surfdts, year = surfyear, month = surfmos, day = surfday, t(ConcDay))
+  
+  # reshape data frame, average by year, month for symmetry
+  to_plo <- to_plo[to_plo$month %in% month, , drop = FALSE]
+  names(to_plo)[grep('^X', names(to_plo))] <- paste('flo', flo_grd)
+  to_plo <- tidyr::gather(to_plo, 'flo', 'res', 5:ncol(to_plo)) %>% 
+    mutate(flo = as.numeric(gsub('^flo ', '', flo))) %>% 
+    select(-day)
+  
+  # smooth the grid
+  if(!is.null(interp)){
+    
+    to_interp <- to_plo
+    to_interp <- ungroup(to_interp) %>% 
+      select(date, flo, res) %>% 
+      tidyr::spread(flo, res)
+    
+    # values to pass to interp
+    dts <- to_interp$date
+    fit_grd <- select(to_interp, -date)
+    flo_fac <- length(flo_grd) * interp
+    flo_fac <- seq(min(flo_grd), max(flo_grd), length.out = flo_fac)
+    yr_fac <- seq(min(dts), max(dts), length.out = length(dts) *  interp)
+    to_interp <- expand.grid(yr_fac, flo_fac)
+    
+    # bilinear interpolation of fit grid
+    interps <- interp.surface(
+      obj = list(
+        y = flo_grd,
+        x = dts,
+        z = data.frame(fit_grd)
+      ), 
+      loc = to_interp
+    )
+    
+    # format interped output
+    to_plo <- data.frame(to_interp, interps) %>% 
+      rename(date = Var1, 
+             flo = Var2, 
+             res = interps
+      ) %>% 
+      mutate(
+        month = as.numeric(format(date, '%m')), 
+        year = as.numeric(format(date, '%Y'))
+      )
+    
+  }
+  
+  # subset years to plot
+  if(!is.null(years)){
+    
+    to_plo <- to_plo[to_plo$year %in% years, ]
+    to_plo <- to_plo[to_plo$month %in% month, ]
+    
+    if(nrow(to_plo) == 0) stop('No data to plot for the date range')
+    
+  }
+  
+  # summarize so no duplicate flos for month/yr combos
+  to_plo <- group_by(to_plo, year, month, flo) %>% 
+    summarize(res = mean(res, na.rm = TRUE)) %>% 
+    ungroup
+  
+  # axis labels
+  if(is.null(ylabel))
+    ylabel <- localINFO$paramShortName
+  if(is.null(xlabel))
+    xlabel <- expression(paste('Discharge in ', m^3, '/s'))
+  
+  # constrain plots to salinity/flow limits for the selected month
+  if(!allflo){
+    
+    #min, max flow values to plot
+    lim_vals<- group_by(data.frame(localDaily), Month) %>% 
+      summarize(
+        Low = quantile(LogQ, 0.05, na.rm = TRUE),
+        High = quantile(LogQ, 0.95, na.rm = TRUE)
+      )
+    
+    # month flo ranges for plot
+    lim_vals <- lim_vals[lim_vals$Month %in% month, ]
+    lim_vals <- rename(lim_vals, month = Month)
+    
+    # merge limits with months
+    to_plo <- left_join(to_plo, lim_vals, by = 'month')
+    to_plo <- to_plo[to_plo$month %in% month, ]
+    
+    # reduce data
+    sel_vec <- with(to_plo, 
+                    flo >= Low &
+                      flo <= High
+    )
+    to_plo <- to_plo[sel_vec, !names(to_plo) %in% c('Low', 'High')]
+    to_plo <- arrange(to_plo, year, month)
+    
+  }
+  
+  # months labels as text
+  mo_lab <- data.frame(
+    num = seq(1:12), 
+    txt = c('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December')
+  )
+  mo_lab <- mo_lab[mo_lab$num %in% month, ]
+  to_plo$month <- factor(to_plo$month, levels =  mo_lab$num, labels = mo_lab$txt)
+  
+  # reassign facet names if fac_nms is provided
+  if(!is.null(fac_nms)){
+    
+    if(length(fac_nms) != length(unique(to_plo$month))) 
+      stop('fac_nms must have same lengths as months')
+    
+    to_plo$month <- factor(to_plo$month, labels = fac_nms)
+    
+  }
+  
+  # convert discharge to arithmetic scale
+  to_plo$flo <- exp(to_plo$flo)*35.31467
+  
+  # make plot
+  p <- ggplot(to_plo, aes(x = flo, y = res, group = year)) + 
+    facet_wrap(~month, ncol = ncol, scales = scales)
+  
+  # set lower limit for y-axis if applicable
+  lims <- coord_cartesian(ylim = c(ymin, max(to_plo$res, na.rm = TRUE)))
+  if(!is.null(scales)){
+    if(scales == 'free_x') p <- p + lims
+  } else {
+    p <- p + lims
+  }
+  
+  
+  # return bare bones if FALSE
+  if(!pretty) return(p + geom_line())
+  
+  # get colors
+  cols <- col_vec
+  
+  # use bw theme
+  if(use_bw) p <- p + theme_bw()
+  
+  # log scale breaks
+  brks <- c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000)
+  
+  p <- p + 
+    geom_line(size = size, aes(colour = year), alpha = alpha) +
+    scale_y_continuous(ylabel, expand = c(0, 0)) +
+    scale_x_log10(xlabel, expand = c(0, 0), breaks = brks) +
+    theme(
+      legend.position = 'top', 
+      axis.text.x = element_text(size = 8), 
+      axis.text.y = element_text(size = 8)
+    ) +
+    scale_colour_gradientn('Year', colours = cols) +
+    guides(colour = guide_colourbar()) + 
+    ggtitle(toplab)
+  
+  # remove grid lines
+  if(!grids) 
+    p <- p + 
+    theme(      
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank()
+    )
+  
+  return(p)
+  
+}
+
+
+path <- here("/OutputFiles/LR2Data.csv")
+LR2 <- read_csv(path)
+
+### Subset data to calibration data and transform concentration
+LR2.calib <- LR2 %>%
+  filter(!is.na(Value)) %>%
+  mutate(Ecoli = as.numeric(Value),
+         logEcoli = log(Ecoli))
+
+LR2.fit <- LR2 %>%
+  mutate(Ecoli = as.numeric(Value),
+         logEcoli = log(Ecoli))
+
+
+meta <- metadata(constituent = "Ecoli", flow = "Flow", dates = "Date", conc.units = "col/100mL", 
+                 flow.units = "cfs", load.units = "million_colonies", load.rate.units = "colonies/day", 
+                 site.name = "Llano River, Junction", site.id = "2")
+
+### user flow needs two columns, date and value
+### EGRET reads from user file, so export as temp csv
+
+temp <- data_frame(Date = LR2$Date,
+                   QDaily = LR2$Flow)
+path <- tempdir()
+
+write_csv(x = temp, path = paste0(path,"\\tempflow.csv"))
+
+Daily <- readUserDaily(filePath = path, fileName = "tempflow.csv", separator = ",", interactive = F)
+
+LR2.calib <- filter(LR2.calib, Value < 7000)
+temp <- data_frame(Date = LR2.calib$Date,
+                   remark = "",
+                   value = LR2.calib$Value)
+write_csv(x = temp, path = paste0(path,"\\tempecoli.csv"))
+
+Sample <- readUserSample(filePath = path, fileName = "tempecoli.csv", separator = ",")
+
+meta <- updateMetadata(metadata = meta,
+                       consti.name = "E.coli")
+INFO <- loadflex:::convertToEGRETInfo(meta)
+
+eList <- mergeReport(INFO, Daily, Sample)
+
+newFlux <- new("fluxUnit", shortName = "Mcol/day",
+               unitFactor = 10,
+               unitName = "Mcol/day",
+               unitExpress = expression("Flux in millions of colonies / day"),
+               unitExpressTiny = expression("Flux (Mcol/day)"),
+               unitUSGS = "Millions of colonies per day",
+               shortCode = 14)
+
+
+eList <- setPA(eList, paStart = 1, paLong = 12, window = 4)
+eList <- modelEstimation(eList, minNumObs = 30, minNumUncen = 0, windowY = 4, windowQ = 1, windowS = 10)
+
+d <- tableResults(eList, fluxUnit = newFlux)
+
+conc <- ggplot(d) +
+  geom_line(aes(Year, `FN Conc [mg/L]`)) +
+  geom_point(aes(Year, `Conc [mg/L]`)) +
+  #geom_ribbon(data = CIAnnualResults, aes(as.numeric(Year),ymin = FNConcLow, ymax = FNConcHigh), alpha = 0.25) +
+  scale_y_log10(breaks = c(1, 10, 100), limits = c(1,500)) +
+  theme_ipsum_rc() +
+  labs(y = "Concentration (cfu/100mL)", subtitle = "a")
+
+fl <- ggplot(d) +
+  geom_line(aes(Year, `FN Flux [Mcol/day]`)) +
+  geom_point(aes(Year, `Flux [Mcol/day]`)) +
+  #geom_ribbon(data = CIAnnualResults, aes(as.numeric(Year), ymin = FNFluxLow*10, ymax = FNFluxHigh*10), alpha = 0.25) +
+  scale_y_log10(limits = c(.1, 1E8)) +
+  theme_ipsum_rc() +
+  labs(y = "Load (million colonies/day)", subtitle = "b")
+
+path <- here("/OutputFiles/NL1Data.csv")
+NL1 <- read_csv(path)
+
+NL1.calib <- NL1 %>%
+  filter(!is.na(Value)) %>%
+  mutate(Ecoli = as.numeric(Value),
+         logEcoli = log(Ecoli))
+
+NL1.fit <- NL1 %>%
+  mutate(Ecoli = as.numeric(Value),
+         logEcoli = log(Ecoli))
+
+
+meta <- metadata(constituent = "Ecoli", flow = "Flow", dates = "Date", conc.units = "col/100mL", 
+                 flow.units = "cfs", load.units = "million_colonies", load.rate.units = "colonies/day", 
+                 site.name = "NL, Junction", site.id = "1")
+
+temp <- data_frame(Date = NL1$Date,
+                   QDaily = NL1$Flow)
+path <- tempdir()
+
+write_csv(x = temp, path = paste0(path,"\\tempflow.csv"))
+
+DailyNL <- readUserDaily(filePath = path, fileName = "tempflow.csv", separator = ",", interactive = F)
+
+NL1.calib <- filter(NL1.calib, Flow >= 1 )
+temp <- data_frame(Date = NL1.calib$Date,
+                   remark = "",
+                   value = NL1.calib$Value)
+write_csv(x = temp, path = paste0(path,"\\tempecoli.csv"))
+
+SampleNL <- readUserSample(filePath = path, fileName = "tempecoli.csv", separator = ",")
+
+metaNL <- updateMetadata(metadata = meta,
+                         consti.name = "E.coli")
+INFONL <- loadflex:::convertToEGRETInfo(metaNL)
+eListNL <- mergeReport(INFONL, DailyNL, SampleNL)
+
+eListNL <- setPA(eListNL, paStart = 1, paLong = 12, window = 4)
+eListNL <- modelEstimation(eListNL, minNumObs = 20, minNumUncen = 0, windowY = 4, windowQ = 1, windowS = 4)
+
+dNL <- tableResults(eListNL, qUnit = 1, fluxUnit = newFlux)
+
+concNL <- ggplot(dNL) +
+  geom_line(aes(Year, `FN Conc [mg/L]`)) +
+  geom_point(aes(Year, `Conc [mg/L]`)) +
+  scale_y_log10(breaks = c(1, 10, 100), limits = c(1,500)) +
+  theme_ipsum_rc() +
+  labs(y = "Concentration (cfu/100mL)", subtitle = "c")
+
+flNL <- ggplot(dNL) +
+  geom_line(aes(Year, `FN Flux [Mcol/day]`)) +
+  geom_point(aes(Year, `Flux [Mcol/day]`)) +
+  scale_y_log10(limits = c(.1, 1E8)) +
+  theme_ipsum_rc() +
+  labs(y = "Load (million colonies/day)", subtitle = "d")
+
+```
+
+```{r figure6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Annual mean estimated (dots) and flow-normalized (lines) *E. coli* concentrations at LR2 (a) and NL1 (b); annual mean estimated and flow normalized *E. coli* loads for LR2 (b) and NL1 (d)."}
+cowplot::plot_grid(conc, fl, concNL, flNL, rel_widths = c(1,1))
+```
+
+```{r table4, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+table4 <- data_frame(
+  Station = c("LR2", "NL1"),
+  Time = c("2001-2016", "2002-2016"),
+  Conc = c(
+    d[16,4] - d[1,4],
+    d[15,4] - dNL[1,4]
+  ),
+  Load = c(
+    paste0("$",knitr:::format_sci(d[16,6] - d[1,6]),"$"),
+    paste0("$",knitr:::format_sci(dNL[15,6] - dNL[1,6]),"$")
+  )
+)
+
+
+knitr::kable(table4,
+             "latex", booktabs = T, escape = F,
+             caption = "WRTDS estimated changes in flow-normalized mean daily \\textit{E. coli} concentrations and loads.",
+             col.names = linebreak(c("Station", "Period", 
+                                     "Change in Flow\nNormalized Mean Concentration\n(cfu/100mL)",
+                                     "Change in Flow\nNormalized Mean Load\n(million colonies per day)")))
+```
+
+Figure \@ref(fig:figure7) and Figure \@ref(fig:figure8) show the WRTDS estimates of *E. coli* concentration at LR2 and NL1 as a function of discharge over season and year. LR2 is characterized by increases in concentration with increases in discharge. However, in recent years, that relationship is less strong or even negative during spring and early summer months. Estimates at NL1 (Figure \@ref(fig:figure8)) indicate elevated concentrations at lower flows which generally decrease with increase discharges. There also appears to be a substantial shift in the concentration-discharge relationship during the June through December time-period with *E.coli* concentration decreasing more rapidly with increased discharge in recent years.
+
+```{r figure7, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="*E. coli* concentration and flow relationship over time and month at LR2.", fig.height=8, fig.width=6}
+detach("package:loadflex")
+p <- plotFlowConc(eList, years = seq(2001,2016), scales = "fixed", alpha = 0.75, size = .4, use_bw = FALSE, xlabel = "Discharge (cfs)", ncol = 3)
+p + scale_colour_viridis_c(direction = -1, option = "B") + scale_y_log10() +
+  geom_hline(yintercept = 126, linetype = 2) +
+  labs(y = "Concentration (cfu/100mL)",title=NULL, subtitle = "LR2 E. coli") +
+  theme_ipsum_rc() +
+  theme(legend.position = "right",
+        panel.spacing.x = unit(.2, "in"),
+        panel.spacing.y = unit(.1, "in")) +
+  guides(colour = guide_colourbar("Year", barwidth = 0.5))
+```
+
+```{r figure8, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="*E. coli* concentration and flow relationship over time and month at NL1.", fig.height=8, fig.width=6}
+p1 <- plotFlowConc(eListNL, years = seq(2001,2016), scales = "fixed", alpha = 0.75, size = .4, use_bw = FALSE, xlabel = "Discharge (cfs)", ncol = 3)
+p1 + scale_colour_viridis_c(direction = -1, option = "B") + scale_y_log10(breaks = c(10, 100, 500)) +
+  geom_hline(yintercept = 126, linetype = 2) +
+  labs(x = "Discharge (cfs)", y = "Concentration (cfu/100mL)",title=NULL, subtitle = "NL1 E. coli") +
+  scale_x_log10(breaks = c(.1, 1,10,100), labels = c("0.1", "1", "10", "100")) +
+  theme_ipsum_rc() +
+  theme(legend.position = "right",
+        panel.spacing.x = unit(.2, "in"),
+        panel.spacing.y = unit(.1, "in")) +
+  guides(colour = guide_colourbar("Year", barwidth = 0.5))
+```
+
+## Dissolved Oxygen
+
+Linear regression did not indicate a statistically significant trend in DO concentration at any of the stations from 2001 through 2016 (Figure \@ref(fig:figure9)). Although a handful of samples fell below 5 mg/L (the current TCEQ established standard for minimum DO values in the Upper Llano watershed), long-term trends indicate grab DO concentrations remain well above the established limit.
+
+The correlation matrix (Figure \@ref(fig:figure10)) depicts the relationship between DO, temperature, and log flow at each station in the watershed. DO and temperature exhibit a strong relationship at LR1 ($\tau$ = -0.81, $p$ < 0.001), LR2 ($\tau$ = -0.38, $p$ < 0.001), NL1 ($\tau$ = -0.44, $p$ < 0.001), and NL2 ($\tau$ = -0.7, p < 0.01). A less strong but still significant relationship between DO and temperature was detected at SL1 ($\tau$ = -0.53, $p$ < 0.05). No correlation appears between DO and log flow or temperature and log flow. 
+
+```{r figure9, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="DO concentrations plotted against time for each station. The solid line is the linear regression through all points, and the shaded area indicates the 95% confidence interval."}
+##try with CRP data
+CRPField <- read_delim("../RawData/CRPField.txt", 
+                       "|", escape_double = FALSE, col_types = cols(`End Date` = col_date(format = "%m/%d/%Y")), 
+                       trim_ws = TRUE)
+#clean
+CRPField <- select(CRPField, Date = `End Date`, Location = `Station ID`, Value = `Value`, Parameter = `Parameter Code`, ParameterDesc = `Parameter Description`)
+CRPField <- CRPField[CRPField$Parameter == "00300",]
+cframe <- CRPField %>%
+  mutate(Location = case_when(
+    Location == "17471" ~ "LR1",
+    Location == "21489" ~ "LR2",
+    Location == "17425" ~ "NL1",
+    Location == "21548" ~ "NL2",
+    Location == "18197" ~ "SL1"
+  ))
+cframe$ndate <- dectime(cframe$Date)
+cframe <- as.data.frame(cframe)
+#fit linear model for each station
+lm.lr1 <- lm(Value ~ ndate, data = cframe[cframe$Location=="LR1",])
+#plot(lm.lr1)
+#summary(lm.lr1)
+lm.lr2 <- lm(Value ~ ndate, data = cframe[cframe$Location=="LR2",])
+#plot(lm.lr2)
+#summary(lm.lr2)
+lm.nl1 <- lm(Value ~ ndate, data = cframe[cframe$Location=="NL1",])
+#plot(lm.nl1)
+#summary(lm.nl1)
+lm.nl2 <- lm(Value ~ ndate, data = cframe[cframe$Location=="NL2",])
+#plot(lm.nl2)
+#summary(lm.nl2)
+lm.sl1 <- lm(Value ~ ndate, data = cframe[cframe$Location=="SL1",])
+#plot(lm.sl1)
+#summary(lm.sl1)
+
+
+
+a <- data.frame(Location = as.factor(c("LR1", "LR2", "NL1", "NL2", "SL1")), # verbose and not R-like but works
+                pvalue = c(round(coef(summary(lm.lr1))[2,4],3), 
+                           round(coef(summary(lm.lr2))[2,4],3),
+                           round(coef(summary(lm.nl1))[2,4],3),
+                           round(coef(summary(lm.nl2))[2,4],3),
+                           round(coef(summary(lm.sl1))[2,4],3)),
+                tstat = c(coef(summary(lm.lr1))[2,3], 
+                          coef(summary(lm.lr2))[2,3],
+                          coef(summary(lm.nl1))[2,3],
+                          coef(summary(lm.nl2))[2,3],
+                          coef(summary(lm.sl1))[2,3]),
+                Date = as.Date(c("2001-1-1","2010-1-1","2010-1-1","2001-1-1","2001-1-1")),
+                Value = c(10,10,10,10,10))
+
+p <- ggplot() + 
+  geom_point(data = cframe, aes(Date, Value), color = "dodgerblue", alpha = 0.75) + 
+  stat_smooth(data = cframe, aes(Date, Value), method = "lm") + 
+  #geom_label(data = a, aes(Date, Value, label = paste("atop(italic(T)==",round(tstat,3),",italic(p)==",pvalue,")")), 
+  #           family = "serif", size = 3, parse = T, hjust = "left",vjust = "bottom", alpha = 0.5) +
+  geom_hline(yintercept = 5, linetype = 2) +
+  facet_wrap(~Location) +
+  background_grid() +
+  ylab("Dissolved Oxygen (mg/L)") +
+  theme_ipsum_rc()
+p
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+# create plot and report of USGS streamflow data
+fframe <- bind_rows(USGSLR, USGSNL, USGSSL)
+
+fframe <- fframe %>%
+  mutate(
+    LR1 = case_when(
+      site_no == "08150000" ~ Flow),
+    LR2 = case_when(
+      site_no == "08150000" ~ Flow * (4789/4809)^phi),
+    NL1 = case_when(
+      site_no == "08148500" ~ Flow * (2372/2332)^phi),
+    NL2 = case_when(
+      site_no == "08148500" ~ Flow * (2342/2332)^phi),
+    SL1 = case_when(
+      site_no == "08149900" ~ Flow * (1941/2277)^phi )) %>%
+  gather(key = station, value = estflow, LR1, LR2, NL1, NL2, SL1 ) %>%
+  filter(!is.na(estflow))
+
+fframe <- fframe %>%
+  left_join(cframe, by = c("Date" = "Date", "station" = "Location"))
+
+
+##import temperature
+
+CRPField <- read_delim("../RawData/CRPField.txt", 
+                       "|", escape_double = FALSE, col_types = cols(`End Date` = col_date(format = "%m/%d/%Y")), 
+                       trim_ws = TRUE)
+#clean
+CRPField <- select(CRPField, Date = `End Date`, Location = `Station ID`, Value = `Value`, Parameter = `Parameter Code`, ParameterDesc = `Parameter Description`)
+CRPField <- CRPField[CRPField$Parameter == "00010",]
+cframe <- CRPField %>%
+  mutate(Location = case_when(
+    Location == "17471" ~ "LR1",
+    Location == "21489" ~ "LR2",
+    Location == "17425" ~ "NL1",
+    Location == "21548" ~ "NL2",
+    Location == "18197" ~ "SL1"
+  ))
+cframe$ndate <- dectime(cframe$Date)
+cframe <- as.data.frame(cframe)
+
+fframe <- fframe %>%
+  left_join(cframe, by = c("Date" = "Date", "station" = "Location"))
+fframe <- fframe %>%
+  rename(DissolvedOxygen = Value.x)
+fframe <- fframe %>%
+  rename(Temperature = Value.y)
+fframe$lflow <- log(fframe$estflow + 0.001)
+
+library(GGally)
+
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+my_custom_cor <- function(data, mapping, color = I("grey50"), sizeRange = c(2, 4), ...) {
+
+  # get the x and y data to use the other code
+  x <- rlang::eval_tidy(mapping$x, data)
+  y <- rlang::eval_tidy(mapping$y, data)
+
+  ct <- cor.test(x,y, method = "kendall")
+  sig <- symnum(
+    ct$p.value, corr = FALSE, na = FALSE,
+    cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+    symbols = c("***", "**", "*", ".", " ")
+  )
+
+  r <- unname(ct$estimate)
+  rt <- format(r, digits=2)[1]
+
+  # since we can't print it to get the strsize, just use the max size range
+  cex <- max(sizeRange)
+
+  # helper function to calculate a useable size
+  percent_of_range <- function(percent, range) {
+    percent * diff(range) + min(range, na.rm = TRUE)
+  }
+
+  # plot the cor value
+  ggally_text(
+    label = as.character(rt),
+    mapping = aes(),
+    xP = 0.5, yP = 0.5,
+    size = I(percent_of_range(cex * abs(r), sizeRange)),
+    color = color,
+    ...
+  ) +
+    # add the sig stars
+    geom_text(
+      aes_string(
+        x = 0.8,
+        y = 0.8
+      ),
+      label = sig,
+      size = I(cex),
+      color = color,
+      ...
+    ) +
+    # remove all the background stuff and wrap it with a dashed line
+    theme_classic() +
+    theme(
+      panel.background = element_rect(
+        color = color,
+        linetype = "longdash"
+      ),
+      axis.line = element_blank(),
+      axis.ticks = element_blank(),
+      axis.text.y = element_blank(),
+      axis.text.x = element_blank()
+    )
+}
+```
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+sub <- ggpairs(fframe[fframe$station=="LR1",], columns = c(10, 14, 18),
+               lower = list(continuous = wrap("smooth", color = "dodgerblue", alpha = 0.5)),
+               diag = list(continuous = "barDiag"),
+               upper = list(continuous = my_custom_cor),
+               #upper = list(continuous = wrap("cor", size = 10)),
+               columnLabels = c("DO", "Temp", "log(Q)"),
+               axisLabels = "none",
+               switch = "both")
+
+  
+sub <- sub +
+  #theme_ipsum_rc() +
+  theme(strip.background = element_blank())
+
+
+sub2 <- ggpairs(fframe[fframe$station=="LR2",], columns = c(10, 14, 18),
+               lower = list(continuous = wrap("smooth", color = "dodgerblue", alpha = 0.5)),
+               diag = list(continuous = "barDiag"),
+               upper = list(continuous = my_custom_cor),
+               columnLabels = c("DO", "Temp", "log(Q)"),
+               axisLabels = "none",
+               switch = "both")
+
+
+sub2 <- sub2 + theme(strip.background = element_blank())
+
+
+sub3 <- ggpairs(fframe[fframe$station=="NL1",], columns = c(10, 14, 18),
+                lower = list(continuous = wrap("smooth", color = "dodgerblue", alpha = 0.5)),
+                diag = list(continuous = "barDiag"),
+                upper = list(continuous = my_custom_cor),
+                columnLabels = c("DO", "Temp", "log(Q)"),
+                axisLabels = "none",
+                switch = "both")
+
+
+sub3 <- sub3 + theme(strip.background = element_blank())
+
+
+sub4 <- ggpairs(fframe[fframe$station=="NL2",], columns = c(10, 14, 18),
+                lower = list(continuous = wrap("smooth", color = "dodgerblue", alpha = 0.5)),
+                diag = list(continuous = "barDiag"),
+                upper = list(continuous = my_custom_cor),
+                columnLabels = c("DO", "Temp", "log(Q)"),
+                axisLabels = "none",
+                switch = "both")
+
+
+sub4 <- sub4 + theme(strip.background = element_blank())
+
+
+sub5 <- ggpairs(fframe[fframe$station=="SL1",], columns = c(10, 14, 18),
+                lower = list(continuous = wrap("smooth", color = "dodgerblue", alpha = 0.5)),
+                diag = list(continuous = "barDiag"),
+                upper = list(continuous = my_custom_cor),
+                columnLabels = c("DO", "Temp", "log(Q)"),
+                axisLabels = "none",
+                switch = "both")
+
+
+sub5 <- sub5 + theme(strip.background = element_blank())
+
+### These are saved with different script and put together in illustrator
+### cowplot and other grid arrange methods don't work
+
+```
+
+
+```{r figure10, echo=FALSE, fig.cap=" Correlation matrix for project stations. Kendall’s Tau values are indicated in the upper right hand section of each matrix, a histogram of indicated values are included along the diagonal plots, and measured values are in the low lower left hand plots. Levels of significance are indicated as * $p$ < 0.05, ** $p$ < 0.01, *** $p$ < 0.001"}
+knitr::include_graphics("Images/figure_10.png", dpi = 350)
+```
+
+GAMMs indicate a small but significant decrease in DO concentration at LR2 ($F$ = 5.990, $p$ = 0.02) and NL1 ($F$ = 7.636, $p$ < 0.001) when controlled for temperature and season. Mean DO at LR2 decreased 1.07 mg/L or 8% between 2001 and 2016. The mean DO at NL1 decreased 2.71 mg/L or 8.8% between the maximum value at 2005 and minimum at 2016. The GAMMs fit to DO concentrations demonstrated reasonable certainty with adjusted R-squared values of 0.661 (LR1) and 0.677 (NL1). The adjusted R-squared values describe the amount of variance each model is expected to account for. Figure \@ref(fig:figure11) shows the change in mean DO contributed by the long-term trend term, or what we could expect as a change in mean DO as a function of time, controlled for changes in flow, temperature, and season.
+
+Figure \@ref(fig:figure12), Figure \@ref(fig:figure13) depict the GAMM estimated dissolved oxygen concentrations as function of water temperature, season (month of year), and year. Both stations reflect a decreasing dissolved oxygen concentration trend over time. Generally, a strong decrease in DO concentration with increasing water temperature occurs as water temperature increase up to 20 degrees Celsius. The GAM estimates a leveling off in concentration reductions, with an increase noted at higher temperature at NL1.
+
+```{r figure11, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="GAMM estimated changes in DO concentration from the long-term trend term. Solid lines are the estimated mean DO concentrations, shaded areas are the estimated standard errors"}
+### Fit GAM to DO concentrations at LR2 and NL1
+library(mgcv)
+library(nlme)
+
+subset.fframe <- fframe[fframe$station == "LR2" | fframe$station == "NL1",]
+subset.fframe$yday <- lubridate::yday(subset.fframe$Date)
+subset.fframe$year <- lubridate::year(subset.fframe$Date)
+subset.fframe$month <- as.numeric(lubridate::month(subset.fframe$Date))
+
+lr2.subset.fframe <- subset.fframe[subset.fframe$station=="LR2",]
+nl1.subset.fframe <- subset.fframe[subset.fframe$station=="NL1",]
+
+
+do.model1.lr2 <- gamm(DissolvedOxygen ~ s(lflow) + s(Temperature) + s(year) + s(month, bs = "cc", k = 4),
+                      data = lr2.subset.fframe)
+do.model1.nl1 <- gamm(DissolvedOxygen ~ s(lflow) + s(Temperature) + s(year) + s(month, bs = "cc", k = 4),
+                      data = nl1.subset.fframe)
+
+### predict long term contributions
+
+pdat <- data_frame(year = 2001:2015,
+                   lflow = median(nl1.subset.fframe$lflow, na.rm = TRUE),
+                   Temperature = mean(nl1.subset.fframe$Temperature, na.rm = TRUE),
+                   month = 6
+                   )
+p <- predict.gam(do.model1.nl1$gam, type = "terms", se.fit = TRUE, newdata = pdat)
+pdat$fit <- p$fit[,3] + mean(nl1.subset.fframe$DissolvedOxygen, na.rm = TRUE)
+pdat$lower <- pdat$fit-p$se[,3]
+pdat$upper <- pdat$fit+p$se[,3]
+pdat$station <- "NL1"
+
+pdat2 <- data_frame(year = 2001:2015,
+                   lflow = median(lr2.subset.fframe$lflow, na.rm = TRUE),
+                   Temperature = mean(lr2.subset.fframe$Temperature, na.rm = TRUE),
+                   month = 6
+)
+p2 <- predict.gam(do.model1.lr2$gam, type = "terms", se.fit = TRUE, newdata = pdat)
+pdat2$fit <- p2$fit[,3] + mean(lr2.subset.fframe$DissolvedOxygen, na.rm = TRUE)
+pdat2$lower <- pdat2$fit-p2$se[,3]
+pdat2$upper <- pdat2$fit+p2$se[,3]
+pdat2$station <- "LR2"
+
+pdat <- bind_rows(pdat, pdat2)
+
+ggplot(pdat) +
+  geom_line(aes(x=year, y=fit, color = station)) +
+  geom_ribbon(aes(x=year, ymin=lower, ymax=upper, fill = station), alpha = 0.5) +
+  theme_ipsum_rc() + scale_color_ipsum() + scale_fill_ipsum() +
+  labs(x = "Year", y = "DO (mg/L)") +
+  theme(legend.title = element_blank(), legend.position = "bottom")
+```
+
+```{r}
+table5 <- pdat %>%
+  group_by(station) %>%
+  summarise(min = min(fit), max = max(fit)) %>%
+  mutate(pchange = (max-min/max), abschng = max-min)
+
+
+```
+
+
+```{r figure12, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Estimated DO concentration and temperature relationships over time and season at NL1. Months without sampling data are not included in the figure."}
+## now plot changes in DO concentration as function of temp, month and year
+
+min.temp <- min(do.model1.nl1$gam$model$Temperature)
+max.temp <- max(do.model1.nl1$gam$model$Temperature)
+pred.temps <- seq(from = min.temp, to = max.temp, by = 1)
+
+min.date <- as.Date("2001-01-01")
+max.date <- as.Date("2016-12-30")
+
+pdat <- expand.grid(Date = seq.Date(min.date, max.date, by = "month"),
+                    Temperature = pred.temps,
+                    lflow = median(nl1.subset.fframe$lflow, na.rm = TRUE),
+                    KEEP.OUT.ATTRS = TRUE)
+pdat <- merTools:::stripAttributes(pdat)
+
+pdat$month <- as.numeric(lubridate::month(pdat$Date))
+pdat$monthlab <- lubridate::month(pdat$Date, label = TRUE, abbr = FALSE)
+#pdat$yday <- yday(pdat$Date)
+pdat$year <- year(pdat$Date)
+
+## need to constrain temps to those observed per month
+lim.vals <- group_by(data.frame(do.model1.nl1$gam$model), month) %>%
+  summarize(Low = quantile(Temperature, 0.05, na.rm = TRUE),
+            High = quantile(Temperature, 0.95, na.rm = TRUE))
+lim.vals$month <- as.integer(lim.vals$month)
+# merge limits with months
+pdat <- left_join(pdat, lim.vals, by = 'month')
+
+# reduce data
+sel_vec <- with(pdat, 
+                Temperature >= Low &
+                  Temperature <= High
+)
+pdat <- pdat[sel_vec, !names(pdat) %in% c('Low', 'High')]
+pdat <- arrange(pdat, year, month)
+
+pdat <- pdat %>%
+  filter(!is.na(lflow))
+
+pred.do <- predict.gam(do.model1.nl1$gam, newdata = pdat)
+pdat$fit <- pred.do
+
+ggplot(pdat) +
+  geom_line(aes(x = Temperature, y = fit, color = year, group = year),size=0.4) +
+  facet_wrap(~monthlab) +
+  geom_hline(yintercept = 5, linetype = 2) +
+  viridis::scale_colour_viridis(direction = -1, option = "B") +
+  labs(x = expression("Temperature "( degree*C)), y = "Concentration (mg/L)",title=NULL, subtitle = "NL1 Dissolved Oxygen") +
+  theme_ipsum_rc() +
+  theme(legend.position = "right",
+        panel.spacing.x = unit(.2, "in"),
+        panel.spacing.y = unit(.1, "in")) +
+  guides(colour = guide_colourbar("Year", barwidth = 0.5))
+```
+
+```{r figure13, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="Estimated DO concentration and temperature relationships over time and season at LR2. Months without sampling data are not included in the figure."}
+## now plot changes in DO concentration as function of temp, month and year
+
+min.temp <- min(do.model1.lr2$gam$model$Temperature)
+max.temp <- max(do.model1.lr2$gam$model$Temperature)
+pred.temps <- seq(from = min.temp, to = max.temp, by = 1)
+
+min.date <- as.Date("2001-01-01")
+max.date <- as.Date("2016-12-30")
+
+pdat <- expand.grid(Date = seq.Date(min.date, max.date, by = "month"),
+                    Temperature = pred.temps,
+                    lflow = median(lr2.subset.fframe$lflow, na.rm = TRUE),
+                    KEEP.OUT.ATTRS = TRUE)
+pdat <- merTools:::stripAttributes(pdat)
+
+pdat$month <- as.numeric(lubridate::month(pdat$Date))
+pdat$monthlab <- lubridate::month(pdat$Date, label = TRUE, abbr = FALSE)
+#pdat$yday <- yday(pdat$Date)
+pdat$year <- year(pdat$Date)
+
+## need to constrain temps to those observed per month
+lim.vals <- group_by(data.frame(do.model1.lr2$gam$model), month) %>%
+  summarize(Low = quantile(Temperature, 0.05, na.rm = TRUE),
+            High = quantile(Temperature, 0.95, na.rm = TRUE))
+lim.vals$month <- as.integer(lim.vals$month)
+# merge limits with months
+pdat <- left_join(pdat, lim.vals, by = 'month')
+
+# reduce data
+sel_vec <- with(pdat, 
+                Temperature >= Low &
+                  Temperature <= High
+)
+pdat <- pdat[sel_vec, !names(pdat) %in% c('Low', 'High')]
+pdat <- arrange(pdat, year, month)
+
+pdat <- pdat %>%
+  filter(!is.na(lflow))
+
+pred.do <- predict.gam(do.model1.lr2$gam, newdata = pdat)
+pdat$fit <- pred.do
+
+ggplot(pdat) +
+  geom_line(aes(x = Temperature, y = fit, color = year, group = year),size=0.4) +
+  facet_wrap(~monthlab, ncol = 2) +
+  geom_hline(yintercept = 5, linetype = 2) +
+  viridis::scale_colour_viridis(direction = -1, option = "B") +
+  labs(x = expression("Temperature "( degree*C)), y = "Concentration (mg/L)",title=NULL, subtitle = "LR2 Dissolved Oxygen") +
+  theme_ipsum_rc() +
+  theme(legend.position = "right",
+        panel.spacing.x = unit(.2, "in"),
+        panel.spacing.y = unit(.1, "in")) +
+  guides(colour = guide_colourbar("Year", barwidth = 0.5))
+```
+
+# Discussion
+
+## *E. coli*
+
+Linear regression indicated a significant decreasing trend in fecal indicator bacteria at station LR2 over the entire sample period. Linear regression did not indicate trends in fecal indicator bacteria at the other sites. Linear regression also did not indicate trends in dissolved oxygen at any sites. These stream concentrations are important to evaluate as indicators of compliance with water quality regulations and stream health. The duration curve and linear regression results indicate general water quality compliance. However, absence of recent sampling at sites with long-term datasets (LR2 and NL1) prevent extrapolation of results to current conditions.
+We used the WRTDS regression approach to describe bacteria loads and concentrations controlled for flow, as well as describe bacteria concentration as a function of flow and season. Although WRTDS indicates, substantial decreases in flow normalized E. coli concentration and load at LR2 and NL1, considerable bias indicates substantial uncertainty with the regressions. This uncertainty can be attributed to (1) relatively infrequent sampling for load estimation purposes, (2) a substantial data gap in the middle of the data set, (3) and sampling did not capture enough high flow events. Despite the uncertainty, we can be reasonably infer that flow normalized loads did not increase over the sample period.
+An inspection of *E. coli* concentration as a function of flow and time at LR2 (Figure \@ref(fig:figure7)), indicates E. coli concentration typically increases with flow, as is expected for nonpoint source influenced constituents. Importantly, the seasonal increases (September through December) in concentration that occurred early in the sampling period appear to be reduced at this site. NL2 (Figure \@ref(fig:figure8)) shows a completely different relationship, indicating possible flushing and decreased concentration of bacteria as flows increase. The elevated bacteria levels at low flows are muted in recent years.
+
+## Dissolved Oxygen
+
+While standard linear regression did not indicate a trend in dissolved oxygen concentrations, the GAMM regression indicated a small but significant decrease in dissolved oxygen as a function of time controlled for temperature and season. Overall dissolved oxygen concentration remained in compliance over the sampling period; however, the temperature and seasonal controlled trends point to possible underlying changes in mean dissolved oxygen concentration. 
+Importantly, for NL1, periodic seasonal exceedances of the dissolved oxygen water quality standard appear more likely to occur based on the GAMM regression (Figure \@ref(fig:figure13)). Again, the lack of recent sampling data negatively impacts the confidence of regression results near the end of the sampling period, as reflected in the wide standard errors at NL1 (Figure \@ref(fig:figure11)). Increased monitoring frequency and continuity in site sampling effort would certainly increase confidence in regression results.
+While changes in DO concentrations are informative, understanding the potential drivers and mechanisms behind those changes would be valuable for land management decisions. Crucially, covariates such as nitrogen and phosphorous loads were not estimated because of the sparse sampling efforts associated with nutrients parameters thus far.
+
+# Conclusion
+
+This report describes trends in *E. coli* and DO in the Upper Llano watershed using regression-based techniques (WRTDS and GAMM). Examination of the trends indicate that the parameters are within acceptable ranges for compliance with existing water quality standards. However, the GAMM approach identified a decreasing trend in dissolved oxygen concentrations (controlled for season and temperature) at NL1. Caveats to this report include substantial bias identified in the *E. coli* load estimations attributed to sparse data collection and lack of high flow sampling events. In order to provide increasingly reliable load estimates, future sampling efforts need to ensure representativeness of sampling conditions (flow and season). Furthermore, while the GAMM estimates of DO were reasonable, regressing dissolved oxygen changes with changes in nutrient loads would be informative for land management purposes. However, the sparseness of instream nutrient data collected to date prevents such analysis. Therefore additional efforts to fill this data gap are also recommended.
