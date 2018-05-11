@@ -7,7 +7,7 @@ output:
     latex_engine: xelatex
     #dev: "cairo_pdf"
     template: latex/mps_rmd_report.tex
-title: "*Escherichia coli* and Dissolved Oxygen Trends in the Upper Llano River Watershed, Texas"
+title: "*Escherichia coli* and Dissolved Oxygen Trends in the Upper Llano River Watershed, Texas (2001-2016)"
 thanks: "A technical report prepared in cooperation with the Texas State Soil and Water Conservation Board under funding from a United States Environmental Protection Agency grant."
 author:
 - name: Michael Schramm
@@ -16,7 +16,7 @@ author:
   affiliation: Texas Tech University, Llano River Field Station
 - name: Tom Arsuffi
   affiliation: Texas Tech University, Llano River Field Station
-abstract: "This document provides an introduction to R Markdown, argues for its benefits, and presents a sample manuscript template intended for an academic audience. I include basic syntax to R Markdown and a minimal working example of how the analysis itself can be conducted within R with the `knitr` package."
+abstract: "Trends in *Escherichia coli* (*E. coli*) and dissolved oxygen at water quality monitoring stations in the Upper Llano watershed were evaluated for calendar years 2001-2016. Trends in *E. coli* concentrations and loads were evaluated with linear regressions and Weighted Regressions on Time, Discharge, and Season (WRTDS) method. Trends in dissolved oxygen concentrations were evaluated with linear regression and generalized additive mixed models (GAMMs). Linear regressions provide insight on instream concentration trends. WRTDS and GAMMs were also used to remove effects of year to year variations of flow on *E. coli* and annual variations in mean temperature on dissolved oxygen. Linear regression indicated a statistically significant decrease in *E. coli* on the main stem of the Llano River immediately downstream of the the North and South Llano River confluence. Linear regression did not indicate statistically significant changes in DO at any sites in the the watershed."
 keywords: "Llano River, *E. coli*, Dissolved Oxygen, Water Quality"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 geometry: margin=1in
@@ -69,7 +69,7 @@ knit_hooks$set(inline = inline_hook)
 
 
 # Introduction
-The Upper Llano River Watershed includes the North and South Llano rivers and is located in the central Texas hill country (Figure \@ref(fig:figure1)). Both rivers have high water quality are supportive of diverse aquatic communities and sustain locally important recreational opportunities. Although both rivers meet existing water quality standards, local stakeholders voiced concern about changing land uses, proliferation of invasive species, and pressures on water supply as local populations grow. These concerns lead to the formation of local stakeholder organizations and the development of the Upper Llano River Watershed Protection Plan (ULRWPP). The URLWPP, accepted by the Environmental Protection Agency in Summer 2016, identified and recorded those key concerns raised by local stakeholders. Amongst the surface water quality issues identified in the plan were concerns about low dissolved oxygen (DO) and the elevated indicator bacteria, *Escherichia coli* (*E. coli*).
+The Upper Llano River Watershed includes the North and South Llano rivers and is located in the central Texas hill country (Figure \@ref(fig:figure1)). Both rivers have high water quality are supportive of diverse aquatic communities and sustain locally important recreational opportunities. Although both rivers meet existing water quality standards, local stakeholders voiced concern about changing land uses, proliferation of invasive species, and pressures on water supply as local populations grow. These concerns lead to the formation of local stakeholder organizations and the development of the Upper Llano River Watershed Protection Plan (ULRWPP). The URLWPP, accepted by the Environmental Protection Agency in Summer 2016, identified and recorded those key concerns raised by local stakeholders. Among the surface water quality issues identified in the plan were concerns about low dissolved oxygen (DO) and the elevated indicator bacteria, *Escherichia coli* (*E. coli*).
 Since 2016, implementation efforts in the watershed to reduce *E. coli* bacteria loads and potential contributors to depressed DO have expanded. Amongst these efforts are enrolling agricultural producers into Natural Resource Conservation Service (NRCS) conservation plans or prescribed grazing plans intended to reduce runoff, protect riparian areas, increase soil health, and reduce livestock time spent in streams.
 Although limited water quality sampling has occurred, this report intends to provide an understanding of bacteria and dissolved oxygen trends through 2016. The purpose of this report is to evaluate changes in water quality concentrations over time using simple statistical regression methods and to evaluate potential correlations with dissolved oxygen concentrations.
 
@@ -192,13 +192,13 @@ knitr::kable(tab2, "latex", booktabs = T, escape = F,
 
 ## Streamflow Estimation
 
-Mean daily streamflows for ungaged water quality monitoring sites (LR2, NL1, NL2, SL1) were developed using the Drainage-Area Ratio (DAR) method. DAR provides a simple method of estimating streamflows at ungaged sites, in particular for nested subswatersheds [@Hirsch1979; @Ries2000; @Emerson2005]. DAR calculates streamflow discharge as:
+Mean daily streamflows for ungaged water quality monitoring sites (LR2, NL1, NL2, SL1) were developed using the Drainage-Area Ratio (DAR) method. DAR provides a simple method of estimating streamflows at ungaged sites, in particular for nested subwatersheds [@Hirsch1979; @Ries2000; @Emerson2005]. DAR calculates streamflow discharge as:
 $$
 Y_i = X_i(\frac{A_y}{A_x})^\phi
 $$
 where $Y_i$ is the calculated discharge at the ungaged site at time $i$, $X_i$ is discharge measured at the gaged site at time $i$,  while $(\frac{A_y}{A_x})$ is the ratio of ungaged and gaged catchment areas. Values used for $(\frac{A_y}{A_x})$ are indicated in Table \@ref(tab:table2).
 
-In most applications, $\phi$ is assumed to equal one [@Asquith2006]. However, when applied to Texas streams, $\phi$ = 1 results in substantial over- or under-estimation at the largest magnitude streamflows [@Asquith2006]. Therefore, we applied values for $\phi$ based on streamflow percentile values as indicated by @Asquith2006 (Table \@ref(tab:table3)). To facilitate interpretation of hydrological conditions as each station, flow duration curves were plotted and converted to load duration curves overlaid with water quality measurements [@UnitedStatesEnvironmentalProtectionAgency2008]. The load duration curves were developed using Texas’s primary contact recreation criterion for *E. coli* bacteria in surface freshwater bodies of 126 cfu/100 mL. The duration curves provide a visual analysis of flow conditions at stations, as well as an understanding of what flow conditions water quality concentrations and loads exceed established water quality standards.
+In most applications, $\phi$ is assumed to equal one [@Asquith2006]. However, when applied to Texas streams, $\phi$ = 1 results in substantial over- or under-estimation at the largest magnitude streamflows [@Asquith2006]. Therefore, we applied values for $\phi$ based on streamflow percentile values as indicated by @Asquith2006 (Table \@ref(tab:table3)). To facilitate interpretation of hydrologic conditions as each station, flow duration curves were plotted and converted to load duration curves overlaid with water quality measurements [@UnitedStatesEnvironmentalProtectionAgency2008]. The load duration curves were developed using Texas’s primary contact recreation criterion for *E. coli* bacteria in surface freshwater bodies of 126 cfu/100 mL. The duration curves provide a visual analysis of flow conditions at stations, as well as an understanding of what flow conditions water quality concentrations and loads exceed established water quality standards.
 
 ```{r table3, echo = FALSE, message=FALSE, warning=FALSE}
 
@@ -277,14 +277,14 @@ $$
 ln(E.coli) = \beta_0+\beta_1T+\beta_2ln(Q)+\beta_3cos(2\pi t)
 $$
 
-Where $T$ is decimal time and included in the model as an annual term $(\beta_1)$ or seasonal term ($\beta_3$, $\beta_4$), and $Q$ is flow. WRTDS differs from other regression based estimators, such as LOADEST, by using a weighted regression to estimate coefficients for each combination of Q and t. The coefficeints are used to estimate daily concentrations, daily loads, and flow-normalized loads and concentrations. Flow-normalized values are derived from removal of variation in concentration based on random variations in discharge. Further details of WRTDS are outlined in @Hirsch2010. These flow normalized values are useful to understand how changes in land practices over time affect instream constituent concentrations and loads. In particular flow normalized values are less influenced by increases in loads solely attributed to increases in stormflow runoff. Flow-normalized values provide a useful insights that are not reflected by regression on concentration values alone, which can be influenced by changes in precipitation and runoff and might not reflect progress in land management activities.
+Where $T$ is decimal time and included in the model as an annual term $(\beta_1)$ or seasonal term ($\beta_3$, $\beta_4$), and $Q$ is flow. WRTDS differs from other regression based estimators, such as LOADEST, by using a weighted regression to estimate coefficients for each combination of Q and t. The coefficients are used to estimate daily concentrations, daily loads, and flow-normalized loads and concentrations. Flow-normalized values are derived from removal of variation in concentration based on random variations in discharge. Further details of WRTDS are outlined in @Hirsch2010. These flow normalized values are useful to understand how changes in land practices over time affect instream constituent concentrations and loads. In particular flow normalized values are less influenced by increases in loads solely attributed to increases in stormflow runoff. Flow-normalized values provide a useful insights that are not reflected by regression on concentration values alone, which can be influenced by changes in precipitation and runoff and might not reflect progress in land management activities.
 
 We estimated instream dissolved oxygen concentrations at LR and NL1 using generalized additive mixed models (GAMMs) [@Wood2008]. GAMMs are regression models that use non-linear smooth functions on covariates. Dissolved oxygen concentrations were not expected to be a function of flow, but a function of stream temperature, season, long-term trend, and instream metabolic processes. Therefore, we utilized GAMMs to describe dissolved oxygen concentration because it allows the inclusion of specified terms and random effects. The generalized GAMM model used to fit dissolved oxygen concentrations is:
 $$
 DO = \beta_0+\beta_1ln(Q)+\beta_2Year+\beta_3Month+\beta_4Temperature
 $$
 
-Where $Q$ is flow, $Year$ is year term, $Month$ is the seasonal month term, and $Temperature$ is the water temperature term. Appropriateness of GAMM model fits were evaluated by inspecting model residuals following procedures described by @Zuur2009. GAMMS were developed using the `mgcv` and `nlme` pacakages in `R`.
+Where $Q$ is flow, $Year$ is year term, $Month$ is the seasonal month term, and $Temperature$ is the water temperature term. Appropriateness of GAMM model fits were evaluated by inspecting model residuals following procedures described by @Zuur2009. GAMMS were developed using the `mgcv` and `nlme` packages in `R`.
 
 # Results
 
@@ -804,7 +804,7 @@ knitr::kable(table4,
                                      "Change in Flow\nNormalized Mean Load\n(million colonies per day)")))
 ```
 
-Figure \@ref(fig:figure7) and Figure \@ref(fig:figure8) show the WRTDS estimates of *E. coli* concentration at LR2 and NL1 as a function of discharge over season and year. LR2 is characterized by increases in concentration with increases in discharge. However, in recent years, that relationship is less strong or even negative during spring and early summer months. Estimates at NL1 (Figure \@ref(fig:figure8)) indicate elevated concentrations at lower flows which generally decrease with increase discharges. There also appears to be a substantial shift in the concentration-discharge relationship during the June through December time-period with *E.coli* concentration decreasing more rapidly with increased discharge in recent years.
+Figure \@ref(fig:figure7) and Figure \@ref(fig:figure8) show the WRTDS estimates of *E. coli* concentration at LR2 and NL1 as a function of discharge over season and year. LR2 is characterized by increases in concentration with increases in discharge. However, in recent years, that relationship is less strong or even negative during spring and early summer months. Estimates at NL1 (Figure \@ref(fig:figure8)) indicate elevated concentrations at lower flows which generally decrease with increase discharges. There also appears to be a substantial shift in the concentration-discharge relationship during the June through December time-period with *E. coli* concentration decreasing more rapidly with increased discharge in recent years.
 
 ```{r figure7, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap="*E. coli* concentration and flow relationship over time and month at LR2.", fig.height=8, fig.width=6}
 detach("package:loadflex")
@@ -1149,7 +1149,7 @@ ggplot(pdat) +
   theme(legend.title = element_blank(), legend.position = "bottom")
 ```
 
-```{r}
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 table5 <- pdat %>%
   group_by(station) %>%
   summarise(min = min(fit), max = max(fit)) %>%
