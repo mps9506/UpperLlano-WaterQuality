@@ -16,7 +16,7 @@ author:
   affiliation: Texas Tech University, Llano River Field Station
 - name: Tom Arsuffi
   affiliation: Texas Tech University, Llano River Field Station
-abstract: "Trends in *Escherichia coli* (*E. coli*) and dissolved oxygen at water quality monitoring stations in the Upper Llano watershed were evaluated for calendar years 2001-2016. Trends in *E. coli* concentrations and loads were evaluated with linear regressions and Weighted Regressions on Time, Discharge, and Season (WRTDS) method. Trends in dissolved oxygen concentrations were evaluated with linear regression and generalized additive mixed models (GAMMs). Linear regressions provide insight on instream concentration trends. WRTDS and GAMMs were also used to remove effects of year to year variations of flow on *E. coli* and annual variations in mean temperature on dissolved oxygen. Linear regression indicated a statistically significant decrease in *E. coli* on the main stem of the Llano River immediately downstream of the the North and South Llano River confluence. Linear regression did not indicate statistically significant changes in DO at any sites in the the watershed."
+abstract: "Trends in *Escherichia coli* (*E. coli*) and dissolved oxygen (DO) at Upper Llano watershed water quality monitoring stations were evaluated for calendar years 2001-2016. Trends in *E. coli* concentrations and loads were evaluated with linear regressions and Weighted Regressions on Time, Discharge, and Season (WRTDS). Trends in DO concentrations were evaluated with linear regression and generalized additive mixed models (GAMMs). Linear regressions provide insight on in-stream concentration trends. WRTDS and GAMMs were also used to remove effects of year to year variations of flow on *E. coli* and annual variations in mean temperature on dissolved oxygen. Linear regression indicated a statistically significant decrease in *E. coli* on the main stem of the Llano River immediately downstream of the the North and South Llano River confluence. Linear regression did not indicate statistically significant changes in DO at any sites in the the watershed. From 2001 through 2017 total *E. coli* loads decreased by 3.99 × 10^4^ million colonies per day on the North Llano and 1.34 × 10^7^ million colonies per day on the Llano River. Flow-normalized loads decreased by 1.27 × 10^5^ million colonies per day and 5.87 × 10^6^ million colonies per day on the North Llano and Llano rivers respectively. Estimated *E. coli* load reductions appear substantial; however, the estimations are considerably biased with sampling efforts that underrepresent high flow scenarios. GAMMS estimate that mean DO concentrations decreased 8.8% on the North Llano and 8% on the Llano during the same time period. While substantial, mean DO remains well within established water quality standards."
 keywords: "Llano River, *E. coli*, Dissolved Oxygen, Water Quality"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 geometry: margin=1in
@@ -272,14 +272,14 @@ Monotonic relationships between dissolved oxygen concentrations, log transformed
 ## Concentration and Load Trends
 
 We evaluated trends in bacteria concentrations collected at each station with simple linear regressions of log transformed concentrations against date [@Helsel2002]. Dissolved oxygen concentrations were evaluated using untransformed values regressed against date. The null hypothesis of zero slope over time was rejected at $p$ < 0.05. Scatter plots of concentrations and dates are provided to aid result interpretation. We verified linear regression assumptions of normality with qqplots and by plotting model residuals against dates.
-LR2 and NL1 were the only stations with enough data to estimate concentrations and loads using regression based techniques. We estimated instream mean daily bacteria loads using the Weighted Regressions on Time, Discharge and Season (WRTDS) approach with the `EGRET` package in `R` [@Hirsch2010; @Hirsch2015]. We used WRTDS outputs to describe trends in concentration and loads over time. WRTDS is a regression-based approach that models log transformed water quality constituents concentrations as a function of time, flow, and season. The functional model is:
+LR2 and NL1 were the only stations with enough data to estimate concentrations and loads using regression based techniques. We estimated in-stream mean daily bacteria loads using the Weighted Regressions on Time, Discharge and Season (WRTDS) approach with the `EGRET` package in `R` [@Hirsch2010; @Hirsch2015]. We used WRTDS outputs to describe trends in concentration and loads over time. WRTDS is a regression-based approach that models log transformed water quality constituents concentrations as a function of time, flow, and season. The functional model is:
 $$
 ln(E.coli) = \beta_0+\beta_1T+\beta_2ln(Q)+\beta_3cos(2\pi t)
 $$
 
-Where $T$ is decimal time and included in the model as an annual term $(\beta_1)$ or seasonal term ($\beta_3$, $\beta_4$), and $Q$ is flow. WRTDS differs from other regression based estimators, such as LOADEST, by using a weighted regression to estimate coefficients for each combination of Q and t. The coefficients are used to estimate daily concentrations, daily loads, and flow-normalized loads and concentrations. Flow-normalized values are derived from removal of variation in concentration based on random variations in discharge. Further details of WRTDS are outlined in @Hirsch2010. These flow normalized values are useful to understand how changes in land practices over time affect instream constituent concentrations and loads. In particular flow normalized values are less influenced by increases in loads solely attributed to increases in stormflow runoff. Flow-normalized values provide a useful insights that are not reflected by regression on concentration values alone, which can be influenced by changes in precipitation and runoff and might not reflect progress in land management activities.
+Where $T$ is decimal time and included in the model as an annual term $(\beta_1)$ or seasonal term ($\beta_3$, $\beta_4$), and $Q$ is flow. WRTDS differs from other regression based estimators, such as LOADEST, by using a weighted regression to estimate coefficients for each combination of Q and t. The coefficients are used to estimate daily concentrations, daily loads, and flow-normalized loads and concentrations. Flow-normalized values are derived from removal of variation in concentration based on random variations in discharge. Further details of WRTDS are outlined in @Hirsch2010. These flow normalized values are useful to understand how changes in land practices over time affect in-stream constituent concentrations and loads. In particular flow normalized values are less influenced by increases in loads solely attributed to increases in stormflow runoff. Flow-normalized values provide a useful insights that are not reflected by regression on concentration values alone, which can be influenced by changes in precipitation and runoff and might not reflect progress in land management activities.
 
-We estimated instream dissolved oxygen concentrations at LR and NL1 using generalized additive mixed models (GAMMs) [@Wood2008]. GAMMs are regression models that use non-linear smooth functions on covariates. Dissolved oxygen concentrations were not expected to be a function of flow, but a function of stream temperature, season, long-term trend, and instream metabolic processes. Therefore, we utilized GAMMs to describe dissolved oxygen concentration because it allows the inclusion of specified terms and random effects. The generalized GAMM model used to fit dissolved oxygen concentrations is:
+We estimated in-stream dissolved oxygen concentrations at LR and NL1 using generalized additive mixed models (GAMMs) [@Wood2008]. GAMMs are regression models that use non-linear smooth functions on covariates. Dissolved oxygen concentrations were not expected to be a function of flow, but a function of stream temperature, season, long-term trend, and in-stream metabolic processes. Therefore, we utilized GAMMs to describe dissolved oxygen concentration because it allows the inclusion of specified terms and random effects. The generalized GAMM model used to fit dissolved oxygen concentrations is:
 $$
 DO = \beta_0+\beta_1ln(Q)+\beta_2Year+\beta_3Month+\beta_4Temperature
 $$
@@ -435,9 +435,13 @@ p
 
 ```
 
-Linear regression of log transformed bacteria concentrations indicated a significant decrease in E. coli concentration at LR2 ($T$ = -2.08, $p$ <0.05) from 2001 through 2016 (Figure \@ref(fig:figure5)). The null hypothesis of no increasing or decreasing trend was not rejected at LR1, NL1, NL2, or SL1 over the respective available sample periods.
+Linear regression of log transformed bacteria concentrations indicated a significant decrease in *E. coli* concentration at LR2 ($T$ = -2.08, $p$ <0.05) from 2001 through 2016 (Figure \@ref(fig:figure5)). The null hypothesis of no increasing or decreasing trend was not rejected at LR1, NL1, NL2, or SL1 over the respective available sample periods.
 
-Figure 6 depicts the WRTDS estimated flow-normalized bacteria concentrations and loads at LR2 and NL1. From 2001 through 2016 annual mean flow-normalized *E. coli* concentration decreased 33 cfu/100 mL and flow normalized loads decreased 5.87×10^6^ million colonies per day from 2001 through 2016 at LR2 (Table \@ref(tab:table4), Figure \@ref(fig:figure6)). *E. coli* concentration and load at NL1 decreased by 235 cfu/100mL and 1.27 × 10^5^ million colonies per day from 2002 through 2016. Although substantial, the estimates for both stations exhibit considerable uncertainty with estimated bias statistic of 0.287 for LR2 and 0.138 for NL1. An inspection of model diagnostics indicate samples at both stations are considerably underrepresented at high flow events. Furthermore, temporal gaps (2009-2011) in monitoring data decrease confidence in these estimated concentration and loads.
+Figure 6 depicts the WRTDS estimated and flow-normalized bacteria concentrations and loads at LR2 and NL1. *E. coli* concentration at LR2 decreased 74.5 cfu/100mL and load decreased 1.34×10^7^ million colonies per day (Table \@ref(tab:table4), Figure \@ref(fig:figure6)). In contrast, daily flow-normalized *E. coli* concentration decreased 33 cfu/100 mL and flow normalized loads decreased 5.87×10^6^ million colonies per day at LR2 (Table \@ref(tab:table4), Figure \@ref(fig:figure6)). The changes in estimated values are relatively large compared to the flow-normalized values, suggesting some amount of decrease is likely the result of changes in streamflow during the sample period and not just a result in changes of on-land practices.
+
+*E. coli* concentration at NL1 decreased 396.9 cfu/100mL and load decreased 3.99×10^4^ million colonies per day. Flow-normalized *E. coli* concentration and load at NL1 decreased by 221 cfu/100mL and 1.27 × 10^5^ million colonies per day from 2002 through 2016. The relatively small change in flow-normalized load in comparision to the estimated change in load suggest that changes in flow at NL1 dampened the observed changes of in-stream loads.
+
+Although substantial, the estimates for both stations exhibit considerable uncertainty with estimated bias statistics of 0.287 for LR2 and 0.138 for NL1. An inspection of model diagnostics indicate samples at both stations are considerably underrepresented at high flow events. Furthermore, temporal gaps (2009-2011) in monitoring data decrease confidence in estimated concentration and loads.
 
 ```{r WRTDS, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 ##### WRTDS Models
@@ -786,10 +790,18 @@ table4 <- data_frame(
   Station = c("LR2", "NL1"),
   Time = c("2001-2016", "2002-2016"),
   Conc = c(
+    d[16,3] - d[1,3],
+    dNL[15,3] - dNL[1,3]
+  ),
+  FNConc = c(
     d[16,4] - d[1,4],
-    d[15,4] - dNL[1,4]
+    dNL[15,4] - dNL[1,4]
   ),
   Load = c(
+    paste0("$",knitr:::format_sci(d[16,5] - d[1,5]),"$"),
+    paste0("$",knitr:::format_sci(dNL[15,5] - dNL[1,5]),"$")
+  ),
+  FNLoad = c(
     paste0("$",knitr:::format_sci(d[16,6] - d[1,6]),"$"),
     paste0("$",knitr:::format_sci(dNL[15,6] - dNL[1,6]),"$")
   )
@@ -800,8 +812,10 @@ knitr::kable(table4,
              "latex", booktabs = T, escape = F,
              caption = "WRTDS estimated changes in flow-normalized mean daily \\textit{E. coli} concentrations and loads.",
              col.names = linebreak(c("Station", "Period", 
-                                     "Change in Flow\nNormalized Mean Concentration\n(cfu/100mL)",
-                                     "Change in Flow\nNormalized Mean Load\n(million colonies per day)")))
+                                     "Change in Daily\nConcentration\n(cfu/100mL)",
+                                     "Change in Flow\nNormalized Daily\nConcentration\n(cfu/100mL)",
+                                     "Change in Daily\nLoad\n(million colonies per day)",
+                                     "Change in Flow\nNormalized Daily Load\n(million colonies per day)")))
 ```
 
 Figure \@ref(fig:figure7) and Figure \@ref(fig:figure8) show the WRTDS estimates of *E. coli* concentration at LR2 and NL1 as a function of discharge over season and year. LR2 is characterized by increases in concentration with increases in discharge. However, in recent years, that relationship is less strong or even negative during spring and early summer months. Estimates at NL1 (Figure \@ref(fig:figure8)) indicate elevated concentrations at lower flows which generally decrease with increase discharges. There also appears to be a substantial shift in the concentration-discharge relationship during the June through December time-period with *E. coli* concentration decreasing more rapidly with increased discharge in recent years.
@@ -1281,10 +1295,21 @@ An inspection of *E. coli* concentration as a function of flow and time at LR2 (
 
 ## Dissolved Oxygen
 
-While standard linear regression did not indicate a trend in dissolved oxygen concentrations, the GAMM regression indicated a small but significant decrease in dissolved oxygen as a function of time controlled for temperature and season. Overall dissolved oxygen concentration remained in compliance over the sampling period; however, the temperature and seasonal controlled trends point to possible underlying changes in mean dissolved oxygen concentration. 
-Importantly, for NL1, periodic seasonal exceedances of the dissolved oxygen water quality standard appear more likely to occur based on the GAMM regression (Figure \@ref(fig:figure13)). Again, the lack of recent sampling data negatively impacts the confidence of regression results near the end of the sampling period, as reflected in the wide standard errors at NL1 (Figure \@ref(fig:figure11)). Increased monitoring frequency and continuity in site sampling effort would certainly increase confidence in regression results.
-While changes in DO concentrations are informative, understanding the potential drivers and mechanisms behind those changes would be valuable for land management decisions. Crucially, covariates such as nitrogen and phosphorous loads were not estimated because of the sparse sampling efforts associated with nutrients parameters thus far.
+While standard linear regression did not indicate a trend in dissolved oxygen concentrations, the GAMM regression indicated a small but significant decrease in DO as a function of time controlled for temperature and season. 
+Overall dissolved oxygen concentration remained in compliance over the sampling period; however, the temperature and seasonal controlled trends point to possible underlying changes in mean dissolved oxygen concentration.
+Importantly, for NL1, periodic seasonal exceedances of the dissolved oxygen water quality standard appear more likely to occur based on the GAMM regression (Figure \@ref(fig:figure13)). 
+Again, the lack of recent sampling data negatively impacts the confidence of regression results near the end of the sampling period, as reflected in the wide standard errors at NL1 (Figure \@ref(fig:figure11)). 
+Increased monitoring frequency and continuity in site sampling effort would certainly increase confidence in regression results going forward.
+While changes in DO concentrations are informative, understanding the potential drivers and mechanisms behind those changes would be valuable for land management decisions. 
+Crucially, covariates such as nitrogen and phosphorous loads were not estimated because of the sparse sampling efforts associated with nutrients parameters thus far.
 
 # Conclusion
 
-This report describes trends in *E. coli* and DO in the Upper Llano watershed using regression-based techniques (WRTDS and GAMM). Examination of the trends indicate that the parameters are within acceptable ranges for compliance with existing water quality standards. However, the GAMM approach identified a decreasing trend in dissolved oxygen concentrations (controlled for season and temperature) at NL1. Caveats to this report include substantial bias identified in the *E. coli* load estimations attributed to sparse data collection and lack of high flow sampling events. In order to provide increasingly reliable load estimates, future sampling efforts need to ensure representativeness of sampling conditions (flow and season). Furthermore, while the GAMM estimates of DO were reasonable, regressing dissolved oxygen changes with changes in nutrient loads would be informative for land management purposes. However, the sparseness of instream nutrient data collected to date prevents such analysis. Therefore additional efforts to fill this data gap are also recommended.
+This report describes trends in *E. coli* and DO in the Upper Llano watershed using regression-based techniques (WRTDS and GAMM). 
+Examination of the trends indicate that the parameters are within acceptable ranges for compliance with existing water quality standards. 
+However, the GAMM approach identified a decreasing trend in dissolved oxygen concentrations (controlled for season and temperature) at NL1. 
+Caveats to this report include substantial bias identified in the *E. coli* load estimations attributed to sparse data collection and lack of high flow sampling events. 
+In order to provide increasingly reliable load estimates, future sampling efforts need to ensure representativeness of sampling conditions (flow and season). 
+Furthermore, while the GAMM estimates of DO were reasonable, regressing dissolved oxygen changes with changes in nutrient loads would be informative for land management purposes. 
+However, the sparseness of in-stream nutrient data collected to date prevents such analysis. 
+Therefore additional monitoring effort is required if accurate estimation of in-stream pollutant loads are desired.
