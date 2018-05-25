@@ -10,6 +10,7 @@
 \usepackage{pagecolor}
 \usepackage{array}
 \usepackage{makecell}
+\usepackage{caption}
 %\usepackage{unicode-math}
 \defaultfontfeatures{Scale=MatchLowercase}
 
@@ -321,6 +322,7 @@ $endif$
 % begin body ------------
 \noindent 
 \setlength{\parskip}{\baselineskip}
+\captionsetup[table]{font=small,skip=0pt}
 $if(anonymous)$\doublespacing$else$$if(spacing)$\$spacing$spacing$endif$$endif$ $body$
 $if(endnotes)$
 \newpage
