@@ -69,7 +69,7 @@ knit_hooks$set(inline = inline_hook)
 
 
 # Introduction
-The Upper Llano River Watershed includes the North and South Llano rivers and is located in the central Texas hill country (Figure \@ref(fig:figure1)). Both rivers have high water quality are supportive of diverse aquatic communities and sustain locally important recreational opportunities. Although both rivers meet existing water quality standards, local stakeholders voiced concern about changing land uses, proliferation of invasive species, and pressures on water supply as local populations grow. These concerns lead to the formation of local stakeholder organizations and the development of the Upper Llano River Watershed Protection Plan (ULRWPP). The URLWPP, accepted by the Environmental Protection Agency in Summer 2016, identified and recorded those key concerns raised by local stakeholders. Among the surface water quality issues identified in the plan were concerns about low dissolved oxygen (DO) and the elevated indicator bacteria, *Escherichia coli* (*E. coli*)[@Broad2016].
+The Upper Llano River Watershed includes the North and South Llano rivers and is located in the central Texas hill country (Figure \@ref(fig:figure1)). Both rivers have high water quality are supportive of diverse aquatic communities and sustain locally important recreational opportunities. Although both rivers meet existing water quality standards, local stakeholders voiced concern about changing land uses, proliferation of invasive species, and pressures on water supply as local populations grow. These concerns lead to the formation of local stakeholder organizations and the development of the Upper Llano River Watershed Protection Plan (ULRWPP). The URLWPP, accepted by the Environmental Protection Agency in Summer 2016, identified and recorded those key concerns raised by local stakeholders. Among the surface water quality issues identified in the plan were concerns about low dissolved oxygen (DO) and the elevated indicator bacteria, *Escherichia coli* (*E. coli*) [@Broad2016].
 Since 2016, implementation efforts in the watershed to reduce *E. coli* bacteria loads and potential contributors to depressed DO have expanded. Amongst these efforts are enrolling agricultural producers into Natural Resource Conservation Service (NRCS) conservation plans or prescribed grazing plans intended to reduce runoff, protect riparian areas, increase soil health, and reduce livestock time spent in streams.
 Although limited water quality sampling has occurred, this report intends to provide an understanding of bacteria and dissolved oxygen trends through 2016. The purpose of this report is to evaluate changes in water quality concentrations over time using simple statistical regression methods and to evaluate potential correlations with dissolved oxygen concentrations.
 
@@ -199,6 +199,8 @@ where $Y_i$ is the calculated discharge at the ungaged site at time $i$, $X_i$ i
 
 In most applications, the exponent, $\phi$, is assumed to equal one [@Asquith2006]. However, when applied to Texas streams, $\phi$ = 1 results in substantial over- or under-estimation at the largest magnitude streamflows [@Asquith2006]. Therefore, we applied values for $\phi$ based on streamflow percentile values as indicated by @Asquith2006 (Table \@ref(tab:table3)). To facilitate interpretation of hydrologic conditions as each station, flow duration curves were plotted and converted to load duration curves overlaid with water quality measurements [@UnitedStatesEnvironmentalProtectionAgency2008]. The load duration curves were developed using Texas’s primary contact recreation criterion for *E. coli* bacteria in surface freshwater bodies of 126 cfu/100 mL. The duration curves provide a visual analysis of flow conditions at stations, as well as an understanding of what flow conditions water quality concentrations and loads exceed established water quality standards.
 
+(ref:asquith) Reccomended $\phi$ values for DAR method applied in Texas streams [@Asquith2006]
+
 ```{r table3, echo = FALSE, message=FALSE, warning=FALSE}
 
 # assign values of phi based on streamflow perentile
@@ -258,7 +260,7 @@ tab3_2 <- tab3[20:38,]
 tab3_3 <- tab3[39:54,]
 knitr::kable(list(tab3_1, tab3_2, tab3_3),
              "latex", booktabs = T, escape = F,
-             caption = "Reccomended $\\phi$ values for DAR method applied in Texas streams (\\@Asquith2006)",
+             caption = "(ref:asquith)",
              col.names = linebreak(c("Streamflow\npercentile", "$\\phi$")))
 
 ```
@@ -1315,4 +1317,4 @@ Sampling induced biases can also be compounded by the high uncertanties inherent
 In order to provide increasingly reliable load estimates, future sampling efforts need to ensure representativeness of sampling conditions (flow and season) and would improve with increased sampling frequency.
 Furthermore, while the GAMM estimates of DO were reasonable, regressing dissolved oxygen changes with changes in nutrient loads would be informative for land management purposes.
 To date, nutrient parameters have not been a concern for water quality compliance, due to the relatively low nutrient levels present in the Upper Llano system and many similar Texas hill country streams [@Broad2016].
-While compliance with nutrient water quality standards is not a priority, the resulting sparseness of in-stream nutrient data collected to date precludes a comprehensive assessment of dissolved oxygen and instream metaboloic responses to potential changes in nutrient loads.
+While compliance with nutrient water quality standards is not a pressing concern, the resulting sparseness of in-stream nutrient data collected to date precludes a comprehensive assessment of dissolved oxygen and instream metabolic responses to potential changes in nutrient loads.
