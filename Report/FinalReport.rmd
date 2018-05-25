@@ -69,7 +69,7 @@ knit_hooks$set(inline = inline_hook)
 
 
 # Introduction
-The Upper Llano River Watershed includes the North and South Llano rivers and is located in the central Texas hill country (Figure \@ref(fig:figure1)). Both rivers have high water quality are supportive of diverse aquatic communities and sustain locally important recreational opportunities. Although both rivers meet existing water quality standards, local stakeholders voiced concern about changing land uses, proliferation of invasive species, and pressures on water supply as local populations grow. These concerns lead to the formation of local stakeholder organizations and the development of the Upper Llano River Watershed Protection Plan (ULRWPP). The URLWPP, accepted by the Environmental Protection Agency in Summer 2016, identified and recorded those key concerns raised by local stakeholders. Among the surface water quality issues identified in the plan were concerns about low dissolved oxygen (DO) and the elevated indicator bacteria, *Escherichia coli* (*E. coli*).
+The Upper Llano River Watershed includes the North and South Llano rivers and is located in the central Texas hill country (Figure \@ref(fig:figure1)). Both rivers have high water quality are supportive of diverse aquatic communities and sustain locally important recreational opportunities. Although both rivers meet existing water quality standards, local stakeholders voiced concern about changing land uses, proliferation of invasive species, and pressures on water supply as local populations grow. These concerns lead to the formation of local stakeholder organizations and the development of the Upper Llano River Watershed Protection Plan (ULRWPP). The URLWPP, accepted by the Environmental Protection Agency in Summer 2016, identified and recorded those key concerns raised by local stakeholders. Among the surface water quality issues identified in the plan were concerns about low dissolved oxygen (DO) and the elevated indicator bacteria, *Escherichia coli* (*E. coli*)[@Broad2016].
 Since 2016, implementation efforts in the watershed to reduce *E. coli* bacteria loads and potential contributors to depressed DO have expanded. Amongst these efforts are enrolling agricultural producers into Natural Resource Conservation Service (NRCS) conservation plans or prescribed grazing plans intended to reduce runoff, protect riparian areas, increase soil health, and reduce livestock time spent in streams.
 Although limited water quality sampling has occurred, this report intends to provide an understanding of bacteria and dissolved oxygen trends through 2016. The purpose of this report is to evaluate changes in water quality concentrations over time using simple statistical regression methods and to evaluate potential correlations with dissolved oxygen concentrations.
 
@@ -83,11 +83,10 @@ knitr::include_graphics("Images/figure_02.png", dpi = 300)
 
 
 # Methods
-
 ## Study Location and Data Sources
 The Upper Llano Watershed includes the catchments of both the North Llano and South Llano River (Figure \@ref(fig:figure1)). For purposes of this report, the watershed was extended downstream to capture water quality trends of the combined flows from both watershed. The project watershed was 4,809 km^2^ (1,188,330 acres).
-We obtained mean daily streamflow from three gages in the study area from the USGS National Water Information System (NWIS) Figure (\@ref(fig:figure1), Figure \@ref(fig:figure2), and Table \@ref(tab:table1)). The Texas Commission on Environmental Quality (TCEQ) water quality data was obtained through the [Clean Rivers Program data tool](https://www80.tceq.texas.gov/SwqmisWeb/public/crpweb.faces). Although a number of water quality monitoring stations occur within the watershed, stations with less than one year of data were omitted because they could not provide meaningful insight on temporal concentration trends. Records from five water quality stations were included in the analysis (Figure \@ref(fig:figure1), Figure \@ref(fig:figure2), and Table \@ref(tab:table2)). Although NL2 includes a limited number of available sample events, it was included because sampling at the long-term station NL1 was recently discontinued due to site access issues.
-Water quality monitoring data used in this report were collected by TCEQ, Lower Colorado River Authority, Texas State University, and other Clean Rivers Program Partners. The collection of these data are conducted under TCEQ and EPA approved Quality Assurance Project Plans.
+
+We obtained mean daily streamflow from three gages in the study area from the USGS National Water Information System (NWIS) Figure (\@ref(fig:figure1), Figure \@ref(fig:figure2), and Table \@ref(tab:table1)). The Texas Commission on Environmental Quality (TCEQ) water quality data was obtained through the [Clean Rivers Program data tool](https://www80.tceq.texas.gov/SwqmisWeb/public/crpweb.faces). Although a number of water quality monitoring stations occur within the watershed, stations with less than one year of data were omitted because they could not provide meaningful insight on temporal concentration trends. Records from five water quality stations were included in the analysis (Figure \@ref(fig:figure1), Figure \@ref(fig:figure2), and Table \@ref(tab:table2)). Although NL2 includes a limited number of available sample events, it was included because sampling at the long-term station NL1 was recently discontinued due to site access issues. Water quality monitoring data used in this report were collected by TCEQ, Lower Colorado River Authority, Texas State University, and other Clean Rivers Program Partners. The collection of these data are conducted under respective TCEQ and EPA approved Quality Assurance Project Plans.
 
 ```{r table1, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 ## Retrieve discharge from NWIS
@@ -198,7 +197,7 @@ Y_i = X_i(\frac{A_y}{A_x})^\phi
 $$
 where $Y_i$ is the calculated discharge at the ungaged site at time $i$, $X_i$ is discharge measured at the gaged site at time $i$,  while $(\frac{A_y}{A_x})$ is the ratio of ungaged and gaged catchment areas. Values used for $(\frac{A_y}{A_x})$ are indicated in Table \@ref(tab:table2).
 
-In most applications, $\phi$ is assumed to equal one [@Asquith2006]. However, when applied to Texas streams, $\phi$ = 1 results in substantial over- or under-estimation at the largest magnitude streamflows [@Asquith2006]. Therefore, we applied values for $\phi$ based on streamflow percentile values as indicated by @Asquith2006 (Table \@ref(tab:table3)). To facilitate interpretation of hydrologic conditions as each station, flow duration curves were plotted and converted to load duration curves overlaid with water quality measurements [@UnitedStatesEnvironmentalProtectionAgency2008]. The load duration curves were developed using Texas’s primary contact recreation criterion for *E. coli* bacteria in surface freshwater bodies of 126 cfu/100 mL. The duration curves provide a visual analysis of flow conditions at stations, as well as an understanding of what flow conditions water quality concentrations and loads exceed established water quality standards.
+In most applications, the exponent, $\phi$, is assumed to equal one [@Asquith2006]. However, when applied to Texas streams, $\phi$ = 1 results in substantial over- or under-estimation at the largest magnitude streamflows [@Asquith2006]. Therefore, we applied values for $\phi$ based on streamflow percentile values as indicated by @Asquith2006 (Table \@ref(tab:table3)). To facilitate interpretation of hydrologic conditions as each station, flow duration curves were plotted and converted to load duration curves overlaid with water quality measurements [@UnitedStatesEnvironmentalProtectionAgency2008]. The load duration curves were developed using Texas’s primary contact recreation criterion for *E. coli* bacteria in surface freshwater bodies of 126 cfu/100 mL. The duration curves provide a visual analysis of flow conditions at stations, as well as an understanding of what flow conditions water quality concentrations and loads exceed established water quality standards.
 
 ```{r table3, echo = FALSE, message=FALSE, warning=FALSE}
 
@@ -272,6 +271,7 @@ Monotonic relationships between dissolved oxygen concentrations, log transformed
 ## Concentration and Load Trends
 
 We evaluated trends in bacteria concentrations collected at each station with simple linear regressions of log transformed concentrations against date [@Helsel2002]. Dissolved oxygen concentrations were evaluated using untransformed values regressed against date. The null hypothesis of zero slope over time was rejected at $p$ < 0.05. Scatter plots of concentrations and dates are provided to aid result interpretation. We verified linear regression assumptions of normality with qqplots and by plotting model residuals against dates.
+
 LR2 and NL1 were the only stations with enough data to estimate concentrations and loads using regression based techniques. We estimated in-stream mean daily bacteria loads using the Weighted Regressions on Time, Discharge and Season (WRTDS) approach with the `EGRET` package in `R` [@Hirsch2010; @Hirsch2015]. We used WRTDS outputs to describe trends in concentration and loads over time. WRTDS is a regression-based approach that models log transformed water quality constituents concentrations as a function of time, flow, and season. The functional model is:
 $$
 ln(E.coli) = \beta_0+\beta_1T+\beta_2ln(Q)+\beta_3cos(2\pi t)
@@ -287,7 +287,6 @@ $$
 Where $Q$ is flow, $Year$ is year term, $Month$ is the seasonal month term, and $Temperature$ is the water temperature term. Appropriateness of GAMM model fits were evaluated by inspecting model residuals following procedures described by @Zuur2009. GAMMS were developed using the `mgcv` and `nlme` packages in `R`.
 
 # Results
-
 ## Flow Duration Curves
 
 ```{r figure3, echo = FALSE, message=FALSE, warning=FALSE, fig.cap="Flow duration curves of estimated mean daily flows at each station. Duration interval indicates the percent of days the mean daily flows is exceeded."}
@@ -342,7 +341,7 @@ ggplot(filter(fframe, estflow != 0)) +
   scale_y_log10(labels = scales::comma) + scale_x_continuous(labels = scales::percent) + facet_wrap(~station) +
   ylab("Q (cfs)") + xlab("Duration Interval") +
   background_grid() +
-  theme_ipsum_rc() +
+  theme_ipsum_rc(axis_title_just = "c") +
   theme(axis.text.x = element_text(size = 9))
 ```
 
@@ -379,7 +378,7 @@ ggplot(filter(fframe, estflow != 0)) +
   ylab(expression(paste(italic("E. coli"), " (million cfu/Day)"))) + 
   xlab("Duration Interval") +
   background_grid() +
-  theme_ipsum_rc() +
+  theme_ipsum_rc(axis_title_just = "c") +
   theme(axis.text.x = element_text(size = 9))
 ```
 
@@ -430,7 +429,7 @@ p <- ggplot() +
   scale_y_log10() +
   background_grid() +
   ylab(expression(paste(italic("E. coli"), " (cfu/100 mL)"))) +
-  theme_ipsum_rc() + scale_color_ipsum()
+  theme_ipsum_rc(axis_title_just = "c") + scale_color_ipsum()
 p
 
 ```
@@ -711,7 +710,7 @@ conc <- ggplot(d) +
   geom_point(aes(Year, `Conc [mg/L]`)) +
   #geom_ribbon(data = CIAnnualResults, aes(as.numeric(Year),ymin = FNConcLow, ymax = FNConcHigh), alpha = 0.25) +
   scale_y_log10(breaks = c(1, 10, 100), limits = c(1,500)) +
-  theme_ipsum_rc() +
+  theme_ipsum_rc(axis_title_just = "c") +
   labs(y = "Concentration (cfu/100mL)", subtitle = "a")
 
 fl <- ggplot(d) +
@@ -719,7 +718,7 @@ fl <- ggplot(d) +
   geom_point(aes(Year, `Flux [Mcol/day]`)) +
   #geom_ribbon(data = CIAnnualResults, aes(as.numeric(Year), ymin = FNFluxLow*10, ymax = FNFluxHigh*10), alpha = 0.25) +
   scale_y_log10(limits = c(.1, 1E8)) +
-  theme_ipsum_rc() +
+  theme_ipsum_rc(axis_title_just = "c") +
   labs(y = "Load (million colonies/day)", subtitle = "b")
 
 path <- here("/OutputFiles/NL1Data.csv")
@@ -769,14 +768,14 @@ concNL <- ggplot(dNL) +
   geom_line(aes(Year, `FN Conc [mg/L]`)) +
   geom_point(aes(Year, `Conc [mg/L]`)) +
   scale_y_log10(breaks = c(1, 10, 100), limits = c(1,500)) +
-  theme_ipsum_rc() +
+  theme_ipsum_rc(axis_title_just = "c") +
   labs(y = "Concentration (cfu/100mL)", subtitle = "c")
 
 flNL <- ggplot(dNL) +
   geom_line(aes(Year, `FN Flux [Mcol/day]`)) +
   geom_point(aes(Year, `Flux [Mcol/day]`)) +
   scale_y_log10(limits = c(.1, 1E8)) +
-  theme_ipsum_rc() +
+  theme_ipsum_rc(axis_title_just = "c") +
   labs(y = "Load (million colonies/day)", subtitle = "d")
 
 ```
@@ -826,7 +825,7 @@ p <- plotFlowConc(eList, years = seq(2001,2016), scales = "fixed", alpha = 0.75,
 p + scale_colour_viridis_c(direction = -1, option = "B") + scale_y_log10() +
   geom_hline(yintercept = 126, linetype = 2) +
   labs(y = "Concentration (cfu/100mL)",title=NULL, subtitle = "LR2 E. coli") +
-  theme_ipsum_rc() +
+  theme_ipsum_rc(axis_title_just = "c") +
   theme(legend.position = "right",
         panel.spacing.x = unit(.2, "in"),
         panel.spacing.y = unit(.1, "in")) +
@@ -839,7 +838,7 @@ p1 + scale_colour_viridis_c(direction = -1, option = "B") + scale_y_log10(breaks
   geom_hline(yintercept = 126, linetype = 2) +
   labs(x = "Discharge (cfs)", y = "Concentration (cfu/100mL)",title=NULL, subtitle = "NL1 E. coli") +
   scale_x_log10(breaks = c(.1, 1,10,100), labels = c("0.1", "1", "10", "100")) +
-  theme_ipsum_rc() +
+  theme_ipsum_rc(axis_title_just = "c") +
   theme(legend.position = "right",
         panel.spacing.x = unit(.2, "in"),
         panel.spacing.y = unit(.1, "in")) +
@@ -912,7 +911,7 @@ p <- ggplot() +
   facet_wrap(~Location) +
   background_grid() +
   ylab("Dissolved Oxygen (mg/L)") +
-  theme_ipsum_rc()
+  theme_ipsum_rc(axis_title_just = "c")
 p
 ```
 
@@ -1158,7 +1157,7 @@ pdat <- bind_rows(pdat, pdat2)
 ggplot(pdat) +
   geom_line(aes(x=year, y=fit, color = station)) +
   geom_ribbon(aes(x=year, ymin=lower, ymax=upper, fill = station), alpha = 0.5) +
-  theme_ipsum_rc() + scale_color_ipsum() + scale_fill_ipsum() +
+  theme_ipsum_rc(axis_title_just = "c") + scale_color_ipsum() + scale_fill_ipsum() +
   labs(x = "Year", y = "DO (mg/L)") +
   theme(legend.title = element_blank(), legend.position = "bottom")
 ```
@@ -1222,7 +1221,7 @@ ggplot(pdat) +
   geom_hline(yintercept = 5, linetype = 2) +
   viridis::scale_colour_viridis(direction = -1, option = "B") +
   labs(x = expression("Temperature "( degree*C)), y = "Concentration (mg/L)",title=NULL, subtitle = "NL1 Dissolved Oxygen") +
-  theme_ipsum_rc() +
+  theme_ipsum_rc(axis_title_just = "c") +
   theme(legend.position = "right",
         panel.spacing.x = unit(.2, "in"),
         panel.spacing.y = unit(.1, "in")) +
@@ -1278,7 +1277,7 @@ ggplot(pdat) +
   geom_hline(yintercept = 5, linetype = 2) +
   viridis::scale_colour_viridis(direction = -1, option = "B") +
   labs(x = expression("Temperature "( degree*C)), y = "Concentration (mg/L)",title=NULL, subtitle = "LR2 Dissolved Oxygen") +
-  theme_ipsum_rc() +
+  theme_ipsum_rc(axis_title_just = "c") +
   theme(legend.position = "right",
         panel.spacing.x = unit(.2, "in"),
         panel.spacing.y = unit(.1, "in")) +
@@ -1290,7 +1289,9 @@ ggplot(pdat) +
 ## *E. coli*
 
 Linear regression indicated a significant decreasing trend in fecal indicator bacteria at station LR2 over the entire sample period. Linear regression did not indicate trends in fecal indicator bacteria at the other sites. Linear regression also did not indicate trends in dissolved oxygen at any sites. These stream concentrations are important to evaluate as indicators of compliance with water quality regulations and stream health. The duration curve and linear regression results indicate general water quality compliance. However, absence of recent sampling at sites with long-term datasets (LR2 and NL1) prevent extrapolation of results to current conditions.
+
 We used the WRTDS regression approach to describe bacteria loads and concentrations controlled for flow, as well as describe bacteria concentration as a function of flow and season. Although WRTDS indicates, substantial decreases in flow normalized E. coli concentration and load at LR2 and NL1, considerable bias indicates substantial uncertainty with the regressions. This uncertainty can be attributed to (1) relatively infrequent sampling for load estimation purposes, (2) a substantial data gap in the middle of the data set, (3) and sampling did not capture enough high flow events. Despite the uncertainty, we can be reasonably infer that flow normalized loads did not increase over the sample period.
+
 An inspection of *E. coli* concentration as a function of flow and time at LR2 (Figure \@ref(fig:figure7)), indicates E. coli concentration typically increases with flow, as is expected for nonpoint source influenced constituents. Importantly, the seasonal increases (September through December) in concentration that occurred early in the sampling period appear to be reduced at this site. NL2 (Figure \@ref(fig:figure8)) shows a completely different relationship, indicating possible flushing and decreased concentration of bacteria as flows increase. The elevated bacteria levels at low flows are muted in recent years.
 
 ## Dissolved Oxygen
@@ -1306,10 +1307,12 @@ Crucially, covariates such as nitrogen and phosphorous loads were not estimated 
 # Conclusion
 
 This report describes trends in *E. coli* and DO in the Upper Llano watershed using regression-based techniques (WRTDS and GAMM). 
-Examination of the trends indicate that the parameters are within acceptable ranges for compliance with existing water quality standards. 
-However, the GAMM approach identified a decreasing trend in dissolved oxygen concentrations (controlled for season and temperature) at NL1. 
-Caveats to this report include substantial bias identified in the *E. coli* load estimations attributed to sparse data collection and lack of high flow sampling events. 
-In order to provide increasingly reliable load estimates, future sampling efforts need to ensure representativeness of sampling conditions (flow and season). 
-Furthermore, while the GAMM estimates of DO were reasonable, regressing dissolved oxygen changes with changes in nutrient loads would be informative for land management purposes. 
-However, the sparseness of in-stream nutrient data collected to date prevents such analysis. 
-Therefore additional monitoring effort is required if accurate estimation of in-stream pollutant loads are desired.
+Examination of the trends indicate that the parameter concentrations are typically well within acceptable ranges for compliance with existing water quality standards.
+WRTDS indicates daily *E. coli* concentration and load, as well as flow normalized *E. coli* concentration and load have decreased in the North Llano and Llano River.
+The GAMM approach identified a decreasing trend in dissolved oxygen concentrations when controlled for variations in season and temperature in the North Llano. 
+Caveats to this report include substantial bias identified in the *E. coli* load estimations attributed to sparse data collection and lack of high flow sampling events.
+Sampling induced biases can also be compounded by the high uncertanties inherent in *E. coli* monitoring induced by sample collection, lab analysis, and sample preseravation/storage [@Harmel2016].
+In order to provide increasingly reliable load estimates, future sampling efforts need to ensure representativeness of sampling conditions (flow and season) and would improve with increased sampling frequency.
+Furthermore, while the GAMM estimates of DO were reasonable, regressing dissolved oxygen changes with changes in nutrient loads would be informative for land management purposes.
+To date, nutrient parameters have not been a concern for water quality compliance, due to the relatively low nutrient levels present in the Upper Llano system and many similar Texas hill country streams [@Broad2016].
+While compliance with nutrient water quality standards is not a priority, the resulting sparseness of in-stream nutrient data collected to date precludes a comprehensive assessment of dissolved oxygen and instream metaboloic responses to potential changes in nutrient loads.
