@@ -319,7 +319,9 @@ $endif$
 % end abstract ----------
  
 % begin body ------------
-\noindent $if(anonymous)$\doublespacing$else$$if(spacing)$\$spacing$spacing$endif$$endif$ $body$
+\noindent 
+\setlength{\parskip}{\baselineskip}
+$if(anonymous)$\doublespacing$else$$if(spacing)$\$spacing$spacing$endif$$endif$ $body$
 $if(endnotes)$
 \newpage
 \theendnotes
