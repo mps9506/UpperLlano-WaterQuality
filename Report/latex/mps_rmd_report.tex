@@ -181,6 +181,43 @@ $for(header-includes)$
 $header-includes$
 $endfor$
 
+%table of acronyms
+
+\makeatletter % undo the wrong changes made by mathspec
+\let\RequirePackage\original@RequirePackage
+\let\usepackage\RequirePackage
+\makeatother
+
+\usepackage[abbreviations]{glossaries-extra} % using bib2gls
+% set the abbreviation style before abbreviations are defined:
+
+% bacteria styles
+\newcommand{\bacteriafont}[1]{\emph{#1}}
+\setabbreviationstyle[bacteria]{long-only-short-only}
+\glssetcategoryattribute{bacteria}{textformat}{bacteriafont}
+\glssetcategoryattribute{bacteria}{glossnamefont}{bacteriafont}
+\glssetcategoryattribute{bacteria}{glossdescfont}{bacteriafont}
+
+
+\setabbreviationstyle[acronym]{long-short}% style name
+
+
+%set acronymns
+\newabbreviation[category=acronym]{cfu}{cfu}{colony forming unit}
+\newabbreviation[category=acronym]{dar}{DAR}{{Drainage-Area Ratio}}
+\newabbreviation[category=acronym]{do}{DO}{dissolved oxygen}
+\newabbreviation[category=bacteria]{ecoli}{E.~coli}{Escherichia coli}
+\newabbreviation[category=acronym]{epa}{EPA}{{US Environmental Protection Agency}}
+\newabbreviation[category=acronym]{gamms}{GAMMs}{{Generalized Additive Mixed Models}}
+\newabbreviation[category=acronym]{l}{L}{liter}
+\newabbreviation[category=acronym]{mg}{mg}{milligram}
+\newabbreviation[category=acronym]{ml}{mL}{milliliter}
+\newabbreviation[category=acronym]{tceq}{TCEQ}{{Texas Commission on Environmental Quality}}
+\newabbreviation[category=acronym]{ulrwpp}{ULRWPP}{{Upper Llano River Watershed Protection Plan}}
+\newabbreviation[category=acronym]{usgs}{USGS}{{US Geologic Survey}}
+\newabbreviation[category=acronym]{wrtds}{WRTDS}{{Weighted Regressions on Time, Discharge, and Season}}
+
+
 
 % add tightlist ----------
 \providecommand{\tightlist}{%
@@ -269,6 +306,7 @@ $endif$
 
 
 % toc ------------------------
+
 $if(toc)$
 {
 \newpage
@@ -293,6 +331,13 @@ $if(lot)$
 \listoftables
 }
 $endif$
+
+
+\newpage
+\hypersetup{linkcolor=black}
+\printunsrtglossary[title={List of Abbreviations}, type=abbreviations, nogroupskip, nonumberlist]% <--- using bib2gls
+
+
 %----------------------------
 
 \newpage
