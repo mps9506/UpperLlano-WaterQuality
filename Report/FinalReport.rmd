@@ -31,6 +31,7 @@ biblio-style: apalike
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,  dev = "cairo_pdf")
+Sys.setenv(RSTUDIO_PDFLATEX = Sys.which("latexmk"))
 ```
 
 ```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}

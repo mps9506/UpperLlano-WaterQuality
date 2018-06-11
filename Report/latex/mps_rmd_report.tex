@@ -307,35 +307,23 @@ $endif$
 
 % toc ------------------------
 
-$if(toc)$
-{
 \newpage
 \hypersetup{linkcolor=black}
-\setcounter{tocdepth}{$toc-depth$}
+%\setcounter{tocdepth}{$toc-depth$}
 \tableofcontents
-}
-$endif$
+\glstocfalse
 
-$if(lof)$
-{
 \newpage
 \hypersetup{linkcolor=black}
 \listoffigures
-}
-$endif$
 
-$if(lot)$
-{
 \newpage
 \hypersetup{linkcolor=black}
 \listoftables
-}
-$endif$
-
 
 \newpage
 \hypersetup{linkcolor=black}
-\printunsrtglossary[title={List of Abbreviations}, type=abbreviations, nogroupskip, nonumberlist]% <--- using bib2gls
+\printunsrtglossary[title={List of Abbreviations}, type=abbreviations, nogroupskip]% <--- using bib2gls
 
 
 %----------------------------
