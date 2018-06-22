@@ -16,7 +16,7 @@ author:
   affiliation: Texas Tech University, Llano River Field Station
 - name: Tom Arsuffi
   affiliation: Texas Tech University, Llano River Field Station
-abstract: "Trends in *Escherichia coli* (*E. coli*) and dissolved oxygen (DO) at Upper Llano watershed water quality monitoring stations were evaluated for calendar years 2001-2016. *E. coli* concentrations and loads were evaluated with linear regressions and Weighted Regressions on Time, Discharge, and Season (WRTDS). DO concentrations were evaluated with linear regression and generalized additive mixed models (GAMMs). WRTDS and GAMMs were also used to remove effects of year to year variations of flow on *E. coli* and annual variations in mean temperature on dissolved oxygen. Linear regression indicated a statistically significant decrease in *E. coli* concentrations on the main stem of the Llano River immediately downstream of the the North and South Llano River confluence. Linear regression did not indicate statistically significant changes in DO concentrations at any sites in the the watershed. From 2001 through 2016 total *E. coli* loads decreased by 3.99 × 10^4^ million colonies per day on the North Llano and 1.34 × 10^7^ million colonies per day on the Llano River. Flow-normalized loads decreased by 1.27 × 10^5^ million colonies per day and 5.87 × 10^6^ million colonies per day on the North Llano and Llano rivers respectively. Estimated *E. coli* load reductions appear substantial; however, the estimations are considerably biased which decreases the certainty that estimated load reductions are indeed real. Despite uncertainty, it is reasonable to infer that land use practices and changes in the watershed have not contributed to increases in flow-normalized *E. coli* loads between 2001-2016. GAMMs estimate that mean DO concentrations decreased 8.8% on the North Llano and 8% on the Llano during the same time period. While substantial, mean DO concentration remain well within state water quality standards. While GAMMs substantiate underlying trends in DO concetration, they do not provide insight into the driving mechanisms behind the observed responses in DO."
+abstract: "Trends in *Escherichia coli* (*E. coli*) and dissolved oxygen (DO) at Upper Llano watershed water quality monitoring stations were evaluated for calendar years 2001-2016. *E. coli* concentrations and loads were evaluated with linear regressions and Weighted Regressions on Time, Discharge, and Season (WRTDS). DO concentrations were evaluated with linear regression and generalized additive mixed models (GAMMs). WRTDS and GAMMs were also used to remove effects of year to year variations of flow on *E. coli* and annual variations in mean temperature on dissolved oxygen. Linear regression indicated a statistically significant decrease in *E. coli* concentrations on the main stem of the Llano River immediately downstream of the the North and South Llano River confluence. Linear regression did not indicate statistically significant changes in DO concentrations at any sites in the the watershed. From 2001 through 2016 total *E. coli* loads decreased by 3.99 × 10^4^ million colonies per day on the North Llano and 1.34 × 10^7^ million colonies per day on the Llano River. Flow-normalized loads decreased by 1.27 × 10^5^ million colonies per day and 5.87 × 10^6^ million colonies per day on the North Llano and Llano rivers respectively. Estimated *E. coli* load reductions appear substantial; however, the estimations are considerably biased which decreases the certainty that estimated load reductions are indeed real. Despite uncertainty, it is reasonable to infer that land use practices and changes in the watershed have not contributed to increases in flow-normalized *E. coli* loads between 2001-2016. GAMMs estimate that mean DO concentrations decreased 8.8% on the North Llano and 8% on the Llano during the same time period. Despite the decrease, mean DO concentration remain well within state water quality standards for aquatic life established for the watershed. The GAMMs, as designed in this analysis, are only used only to substantiate underlying trends in DO concentration. Because covariates that are characteristic of eutrophication are not included in this analysis, the GAMMs do not provide causal inference into mechanisms behind the observed responses in DO. If future research is warranted, additional instream monitoring and experimentation would be required to quantify possible eutrophic responses to changes in nutrients and chlorophyll-a."
 keywords: "Llano River, *E. coli*, Dissolved Oxygen, Water Quality"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 geometry: margin=1in
@@ -278,7 +278,7 @@ We evaluated trends in bacteria concentrations collected at each station with si
 
 LR2 and NL1 were the only stations with enough data to estimate concentrations and loads using regression based techniques. We estimated in-stream mean daily bacteria loads using the \gls{wrtds} approach with the `EGRET` package in `R` [@Hirsch2010; @Hirsch2015a]. We used \gls{wrtds} outputs to describe trends in concentration and loads over time. \gls{wrtds} is a regression-based approach that models log transformed water quality constituents concentrations as a function of time, flow, and season. The functional model is:
 $$
-ln(E.coli) = \beta_0+\beta_1T+\beta_2ln(Q)+\beta_3cos(2\pi t)
+ln(E.coli) = \beta_0+\beta_1T+\beta_2ln(Q)+\beta_3sin(2\pi t)+\beta_4cos(2\pi t)
 $$
 
 Where $T$ is decimal time and included in the model as an annual term $(\beta_1)$ or seasonal term ($\beta_3$, $\beta_4$), and $Q$ is flow. \gls{wrtds} differs from other regression based estimators, such as LOADEST, by using a weighted regression to estimate coefficients for each combination of $Q$ and $t$. The coefficients are used to estimate daily concentrations, daily loads, and flow-normalized loads and concentrations. Flow-normalized values are derived from removal of variation in concentration based on random variations in discharge. Further details of \gls{wrtds} are outlined in @Hirsch2010. These flow normalized values are useful to understand how changes in land practices over time affect in-stream constituent concentrations and loads. In particular flow normalized values are less influenced by increases in loads solely attributed to increases in stormflow runoff. Flow-normalized values provide useful insight not reflected by regression on concentration values alone, which can be influenced by changes in precipitation and runoff and might not reflect progress in land management activities.
@@ -351,9 +351,9 @@ ggplot(filter(fframe, estflow != 0)) +
 
 The flow duration curves (Figure \@ref(fig:figure3)) indicate the Llano River at stations LR1 and LR2 maintained consistent flows through the period of record (2001-2015). Compared to LR1 and LR2, the flow duration curves of the North Llano at stations NL1 and NL2 depict a flashier stream with periods of no flow. Flows at SL1 indicate a more consistent flow, likely contributing to consistent flows seen downstream at LR1 and LR2. Streamflow records for SL1 are limited because the \gls{usgs} gage on the South Llano began data collection in 2012.
 
-## E. coli
+## *E. coli*
 
-### E. coli Load Duration Curves
+### *E. coli* Load Duration Curves
 
 ```{r figure4, echo = FALSE, message=FALSE, warning=FALSE, fig.cap="Bacteria load duration curves. The black line indicates allowable bacteria loads based on the 126 colonies per 100 mL water quality criterion. The points indicate measured bacteria concentrations converted to loads based on estimated mean daily flows."}
 cframe <- cframe %>%
@@ -388,7 +388,7 @@ ggplot(filter(fframe, estflow != 0)) +
 
 Load duration curves (Figure \@ref(fig:figure4)) indicate bacteria concentrations and loads remain below the allowable criterion across all flow conditions at each station. Isolated individual load exceedances, where measured values are above the load duration curve line, occur sporadically across the duration interval.
 
-### E. coli Concentration Trends
+### *E. coli* Concentration Trends
 
 ```{r figure5, echo = FALSE, message=FALSE, warning=FALSE, fig.cap="*E. coli* concentrations plotted against time for each station. The solid line is the linear regression through all points, and the shaded area indicates the 95% confidence intervals."}
 
@@ -1290,7 +1290,7 @@ ggplot(pdat) +
 
 # Discussion
 
-## E. coli
+## *E. coli*
 
 Linear regression indicated a significant decreasing trend in fecal indicator bacteria at station LR2 over the entire sample period. Linear regression did not indicate trends in fecal indicator bacteria at the other sites. These stream concentrations are important to evaluate as indicators of compliance with water quality regulations and stream health. The duration curve and linear regression results indicate general water quality compliance. However, absence of recent sampling at sites with long-term datasets (LR2 and NL1) prevent extrapolation of results to current conditions.
 
